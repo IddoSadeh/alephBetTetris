@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aleph Bet Tetris</title>
+    <link rel="stylesheet" href="98.css">
     <link rel="stylesheet" href="styles.css">
+    
 </head>
 <body>
-
+<div class="window-custom">
         <div class="title-bar">
             <div class="title-bar-text">Ormitus Tetris Typography Generator</div>
             <div class="title-bar-controls">
@@ -19,9 +21,70 @@
         <div class="tab-bar">
             <u>1</u><u>3</u><u>1</u><u>2</u>
         </div>
-        <div class="window-body">
-            <p>Welcome to the Windows 95 style app!</p>
-        </div>
+        <div class="window-body-custom">
+            <div class="controls-column1">
+                <div class="window">
+                    <div class="window-body">
+                        <div class="input-control">
+                            <div class="field-row">
+                                <label for="size">Size</label>
+                                <input type="range" id="size" name="size"  min="1" max="11" value="5">
+                                
+                            </div>
+                            <div class="field-row">
+                                <label for="opacity">Grid Opacity</label>
+                            <input type="range" id="opacity" name="opacity">
+                            
+                            </div>
+                            <div class="field-row">
+                                <label for="text">Text</label>
+                                <input type="text" id="text" name="text">
+                                
+                            </div>
+                            <div class="field-row">
+                                <button id="create">Create</button>
+                            </div>
+                            <div class="field-row">
+                                <button id="save">Save</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="pieces-checkbox">
+                    <div class="window">
+                        <div class="window-body">
+                        
 
+                            <div class="field-row">
+                                <input checked type="checkbox" id="ex1">
+                                <label for="ex1">testt</label>
+                              </div>
+                              <div class="field-row">
+                                <input  type="checkbox" id="ex2">
+                                <label for="ex2">test</label>
+                              </div>
+                              <div class="field-row">
+                                <input  type="checkbox" id="ex3">
+                                <label for="ex3">test</label>
+                              </div>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="tetris-grid">test</div>
+            <div class="controls-column2">
+                <div class="dimension-control">
+                    <label for="x-dimension">X</label>
+                    <input type="range" id="x-dimension">
+                    <label for="y-dimension">Y</label>
+                    <input type="range" id="y-dimension">
+                    <label for="depth">Depth</label>
+                    <input type="range" id="depth">
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
