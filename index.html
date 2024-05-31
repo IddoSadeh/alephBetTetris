@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aleph Bet Tetris</title>
     <link rel="stylesheet" href="98.css">
     <link rel="stylesheet" href="styles.css">
-    
+
 </head>
+
 <body>
-<div class="window-custom">
+    <div class="window-custom">
         <div class="title-bar">
             <div class="title-bar-text">Ormitus Tetris Typography Generator</div>
             <div class="title-bar-controls">
@@ -26,65 +28,104 @@
                 <div class="window">
                     <div class="window-body">
                         <div class="input-control">
-                            <div class="field-row">
+                            <div class="field-row-stacked">
                                 <label for="size">Size</label>
-                                <input type="range" id="size" name="size"  min="1" max="11" value="5">
-                                
+                                <input type="range" id="size" name="size" min="1" max="11" value="5">
                             </div>
-                            <div class="field-row">
+                            <div class="field-row-stacked">
                                 <label for="opacity">Grid Opacity</label>
-                            <input type="range" id="opacity" name="opacity">
-                            
+                                <input type="range" id="opacity" name="opacity">
+
                             </div>
-                            <div class="field-row">
+                            <div class="field-row-stacked">
                                 <label for="text">Text</label>
                                 <input type="text" id="text" name="text">
-                                
+
                             </div>
-                            <div class="field-row">
+                            <div class="field-row-stacked">
                                 <button id="create">Create</button>
                             </div>
-                            <div class="field-row">
+                            <div class="field-row-stacked">
                                 <button id="save">Save</button>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
-                <div class="pieces-checkbox">
-                    <div class="window">
-                        <div class="window-body">
-                        
+
+                <div class="window">
+                    <div class="window-body">
+                        <div class="pieces-checkbox">
 
                             <div class="field-row">
-                                <input checked type="checkbox" id="ex1">
-                                <label for="ex1">testt</label>
-                              </div>
-                              <div class="field-row">
-                                <input  type="checkbox" id="ex2">
-                                <label for="ex2">test</label>
-                              </div>
-                              <div class="field-row">
-                                <input  type="checkbox" id="ex3">
-                                <label for="ex3">test</label>
-                              </div>
+                                <input type="checkbox" id="blue">
+                                <label for="blue"><img src="images/blue_piece.svg"> </label>
+                            </div>
+                            <div class="field-row">
+                                <input type="checkbox" id="orange">
+                                <label for="orange"><img src="images/orange_piece.svg"> </label>
+                            </div>
+                            <div class="field-row">
+                                <input type="checkbox" id="red">
+                                <label for="red"><img src="images/red_piece.svg"> </label>
+                            </div>
+                            <div class="field-row">
+                                <input type="checkbox" id="green">
+                                <label for="green"><img src="images/green_piece.svg"> </label>
+                            </div>
+                            <div class="field-row">
+                                <input type="checkbox" id="yellow">
+                                <label for="yellow"><img src="images/yellow_piece.svg"> </label>
+                            </div>
+                            <div class="field-row">
+                                <input type="checkbox" id="pink">
+                                <label for="pink"><img src="images/pink_piece.svg"> </label>
+                            </div>
+                            <div class="field-row">
+                                <input type="checkbox" id="turqoise">
+                                <label for="turqoise"><img src="images/turqoise_piece.svg"> </label>
+                            </div>
                         </div>
                     </div>
-                   
+
                 </div>
             </div>
             <div class="tetris-grid">test</div>
             <div class="controls-column2">
                 <div class="dimension-control">
-                    <label for="x-dimension">X</label>
-                    <input type="range" id="x-dimension">
-                    <label for="y-dimension">Y</label>
-                    <input type="range" id="y-dimension">
-                    <label for="depth">Depth</label>
-                    <input type="range" id="depth">
+                    <div class="window">
+                        <div class="window-body">
+                            <div class="field-row-stacked" style="padding-left: 83%;">
+                                <label for="y-dimension" style="padding-left: 20%;">Y</label>
+                                <div class="is-vertical">
+                                    <input type="range" id="y-dimension">
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <label for="x-dimension">X</label>
+                                <input type="range" id="x-dimension">
+                            </div>
+
+                            <div class="field-row-stacked">
+                                <label for="depth">Depth</label>
+                                <input type="range" id="depth">
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
+        <div class="footer" style="display:flex; justify-content: space-between;">
+           <p> Ori Mor - Experimental Typography Class 2024</p>
+           <div class="links">
+            <a href="_blank" style="color:white;">LinkedIn</a> 
+            <a href="_blank" style="color:white;">Instagram</a>
+            <a href="_blank" style="color:white;"> Portfolio</a>
+           </div>
+           
+        </div>
     </div>
 </body>
+
 </html>

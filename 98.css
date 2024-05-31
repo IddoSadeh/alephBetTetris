@@ -620,7 +620,6 @@ input[type="range"]::-moz-range-track {
   box-shadow: 1px 0 0 white, 1px 1px 0 white, 0 1px 0 white, -1px 0 0 darkgrey,
     -1px -1px 0 darkgrey, 0 -1px 0 darkgrey, -1px 1px 0 white, 1px -1px darkgrey;
 }
-
 .is-vertical {
   display: inline-block;
   width: 4px;
@@ -631,43 +630,34 @@ input[type="range"]::-moz-range-track {
 .is-vertical > input[type="range"] {
   width: 150px;
   height: 4px;
-  margin: 0 calc(var(--grouped-element-spacing) + var(--range-spacing)) 0
-    var(--range-spacing);
+  margin: 0 calc(var(--grouped-element-spacing) + var(--range-spacing)) 0 var(--range-spacing);
   transform-origin: left;
   transform: rotate(270deg) translateX(calc(-50% + var(--element-spacing)));
+  /* Ensures the slider is vertical and adjusted properly */
 }
 
-.is-vertical > input[type="range"]::-webkit-slider-runnable-track {
-  border-left: 1px solid grey;
-  border-right: 0;
-  border-bottom: 1px solid grey;
-  box-shadow: -1px 0 0 white, -1px 1px 0 white, 0 1px 0 white, 1px 0 0 darkgrey,
-    1px -1px 0 darkgrey, 0 -1px 0 darkgrey, 1px 1px 0 white, -1px -1px darkgrey;
-}
-
+/* The runnability track styling for WebKit and Mozilla browsers */
+.is-vertical > input[type="range"]::-webkit-slider-runnable-track,
 .is-vertical > input[type="range"]::-moz-range-track {
   border-left: 1px solid grey;
-  border-right: 0;
   border-bottom: 1px solid grey;
   box-shadow: -1px 0 0 white, -1px 1px 0 white, 0 1px 0 white, 1px 0 0 darkgrey,
-    1px -1px 0 darkgrey, 0 -1px 0 darkgrey, 1px 1px 0 white, -1px -1px darkgrey;
+              1px -1px 0 darkgrey, 0 -1px 0 darkgrey, 1px 1px 0 white, -1px -1px darkgrey;
 }
 
-.is-vertical > input[type="range"]::-webkit-slider-thumb {
-  transform: translateY(-8px) scaleX(-1);
-}
-
-.is-vertical > input[type="range"].has-box-indicator::-webkit-slider-thumb {
-  transform: translateY(-10px) scaleX(-1);
-}
-
+/* The thumb styling for WebKit and Mozilla browsers */
+.is-vertical > input[type="range"]::-webkit-slider-thumb,
 .is-vertical > input[type="range"]::-moz-range-thumb {
   transform: translateY(2px) scaleX(-1);
+  /* Corrects the thumb position and flips it horizontally */
 }
 
+.is-vertical > input[type="range"].has-box-indicator::-webkit-slider-thumb,
 .is-vertical > input[type="range"].has-box-indicator::-moz-range-thumb {
   transform: translateY(0px) scaleX(-1);
+  /* Adjusts for a different style of thumb indicator */
 }
+
 
 select:focus {
   color: var(--button-highlight);
