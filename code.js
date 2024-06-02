@@ -168,7 +168,7 @@
         
             // Check if the selected blocks are only blue and yellow
             if (checkSelectedBlocks(blocks)) {
-                alert("תבחר צבעים אחרים יא מכביסט הומו");
+                alert("acab תבחר צבעים אחרים יא מכביסט הומו");
                 return; // Exit the function to prevent grid population
             }
         
