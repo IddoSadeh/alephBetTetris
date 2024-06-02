@@ -142,6 +142,13 @@
                 }
             }
         }
+        function checkSelectedBlocks(blocks) {
+            // Check if only blue and yellow are selected
+            if (blocks.length === 2 && blocks.some(block => block.id === "blue") && blocks.some(block => block.id === "yellow")) {
+                return true;
+            }
+            return false;
+        }
         
         function populateGrid() {
             clearGridContainer();  // Clear all previous SVG blocks
@@ -150,15 +157,21 @@
             const letterInput = document.getElementById('text').value.trim();
             if (letterInput === 'א') {
                 allowedAreas = createAlephPattern();
-            }else if(letterInput === 'ו'){
+            } else if (letterInput === 'ו') {
                 allowedAreas = createVavPattern();
-            }
-             else {
+            } else {
                 // Optional: Handle other letters or default pattern
                 allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
             }
-            
+        
             let blocks = getSelectedBlocks();  // Get the selected blocks based on checkbox states
+        
+            // Check if the selected blocks are only blue and yellow
+            if (checkSelectedBlocks(blocks)) {
+                alert("תבחר צבעים אחרים יא מכביסט הומו");
+                return; // Exit the function to prevent grid population
+            }
+        
             let placementsPossible;
             do {
                 placementsPossible = false;
@@ -177,9 +190,5 @@
         
         createBtn.addEventListener('click', populateGrid);
         
-        
-        
-        
-
-        createBtn.addEventListener('click', populateGrid);
+    
     });
