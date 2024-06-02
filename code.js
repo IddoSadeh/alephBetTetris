@@ -8,17 +8,78 @@
         const gridHeight = 12;
         let grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
         let allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1)); // Example allowed areas
+       
+    
+        function createAlephPattern() {
+            let pattern = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
+
+              // Define the thick diagonal
+              let grid = [
+                [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                [0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
+                [0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+                [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+                [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0],
+                [1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0],
+                [1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
+            ];
+            
+            return grid;
+        }
+        
+        function createVavPattern() {
+            let pattern = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
+        
+            // Define the vertical line for Vav
+            const vavWidth = 2;  // Vav width of 2 blocks
+            const startX = Math.floor(gridWidth / 2) - 1;  // Center the Vav in the grid
+            for (let i = 0; i < gridHeight - 1; i++) {  // Leave some space at top and bottom
+                for (let j = 0; j < vavWidth; j++) {
+                    pattern[i][startX + j] = 1;
+                }
+            }
+        
+            return pattern;
+        }
 
 
-        const blocks = [
-            { id: "blue", matrix: [[1, 0, 0], [1, 1, 1]], svgUrl: 'images/blue_block.svg' },
-            { id: "green", matrix: [[1, 0,],[ 1, 1], [0, 1]], svgUrl: 'images/green_block.svg' },
-            { id: "orange", matrix: [[0, 0, 1], [1, 1, 1]], svgUrl: 'images/orange_block.svg' },
-            { id: "pink", matrix: [[1, 0], [1, 1],[1,0]], svgUrl: 'images/pink_block.svg' },
-            { id: "red", matrix: [[0, 1,], [1, 1], [1, 0]], svgUrl: 'images/red_block.svg' },
-            { id: "turqoise", matrix: [[1, 1, 1, 1]], svgUrl: 'images/turqoise_block.svg' },
-            { id: "yellow", matrix: [[1, 1], [1, 1]], svgUrl: 'images/yellow_block.svg' }
-        ];
+
+        function clearGridContainer() {
+            gridContainer.innerHTML = ''; // This removes all child elements from the grid container
+        }
+        function resetGridAndAreas() {
+            grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
+            allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
+        }
+        
+
+        function getSelectedBlocks() {
+            const selectedBlocks = [];
+            const allBlocks = [
+                { id: "blue", matrix: [[1, 0, 0], [1, 1, 1]], svgUrl: 'images/blue_block.svg' },
+                { id: "green", matrix: [[1, 0], [1, 1], [0, 1]], svgUrl: 'images/green_block.svg' },
+                { id: "orange", matrix: [[0, 0, 1], [1, 1, 1]], svgUrl: 'images/orange_block.svg' },
+                { id: "pink", matrix: [[1, 0], [1, 1], [1, 0]], svgUrl: 'images/pink_block.svg' },
+                { id: "red", matrix: [[0, 1], [1, 1], [1, 0]], svgUrl: 'images/red_block.svg' },
+                { id: "turqoise", matrix: [[1, 1, 1, 1]], svgUrl: 'images/turqoise_block.svg' },
+                { id: "yellow", matrix: [[1, 1], [1, 1]], svgUrl: 'images/yellow_block.svg' }
+            ];
+        
+            allBlocks.forEach(block => {
+                if (document.getElementById(block.id).checked) {
+                    selectedBlocks.push(block);
+                }
+            });
+        
+            // If no blocks are selected, use all blocks
+            return selectedBlocks.length > 0 ? selectedBlocks : allBlocks;
+        }
+        
 
         function rotateMatrix(matrix) {
             return matrix[0].map((val, index) => matrix.map(row => row[index]).reverse());
@@ -82,8 +143,22 @@
             }
         }
         
-
         function populateGrid() {
+            clearGridContainer();  // Clear all previous SVG blocks
+            resetGridAndAreas();   // Reset grid and allowed areas to initial state
+        
+            const letterInput = document.getElementById('text').value.trim();
+            if (letterInput === 'א') {
+                allowedAreas = createAlephPattern();
+            }else if(letterInput === 'ו'){
+                allowedAreas = createVavPattern();
+            }
+             else {
+                // Optional: Handle other letters or default pattern
+                allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
+            }
+            
+            let blocks = getSelectedBlocks();  // Get the selected blocks based on checkbox states
             let placementsPossible;
             do {
                 placementsPossible = false;
@@ -99,6 +174,11 @@
                 }
             } while (placementsPossible);
         }
+        
+        createBtn.addEventListener('click', populateGrid);
+        
+        
+        
         
 
         createBtn.addEventListener('click', populateGrid);
