@@ -3,9 +3,12 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         const gridContainer = document.getElementById('tetris-grid');
+        const sizeInput = document.getElementById('size');
+        const opacityInput = document.getElementById('opacity');
         const createBtn = document.getElementById('create');
-        const gridWidth = 12;
-        const gridHeight = 12;
+        let gridWidth = 12;  // Changed from const to let
+        let gridHeight = 12; // Changed from const to let
+        let blockWidth = 50; // Default block width
         let grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
         let allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1)); // Example allowed areas
        
@@ -47,7 +50,35 @@
             return pattern;
         }
 
+        function updateGridSize() {
+            gridWidth = parseInt(sizeInput.value);
+            gridHeight = parseInt(sizeInput.value);
+            blockWidth = 600 / gridWidth; // Adjust block width to fit new grid size
+            gridContainer.style.gridTemplateColumns = `repeat(${gridWidth}, 1fr)`;
+            gridContainer.style.gridTemplateRows = `repeat(${gridHeight}, 1fr)`;
 
+            populateGridCells(); 
+        }
+
+        function populateGridCells() {
+            gridContainer.innerHTML = ''; // Clear existing cells
+            for (let i = 0; i < gridWidth * gridHeight; i++) {
+                let cell = document.createElement('div');
+                cell.classList.add('grid-cell'); // Apply the border styling
+                gridContainer.appendChild(cell);
+            }
+        }
+        
+    
+        function updateGridOpacity() {
+            let cells = document.querySelectorAll('.grid-cell');
+            let opacity = opacityInput.value/10;
+            console.log(opacity)
+            cells.forEach(cell => {
+                cell.style.borderColor = `rgba(255, 255, 255, ${opacity})`; // Adjust border color opacity
+            });
+        }
+        
 
         function clearGridContainer() {
             gridContainer.innerHTML = ''; // This removes all child elements from the grid container
@@ -132,10 +163,10 @@
                        
                         blockSvg.classList.add(block.id);  // Add color class
                         blockSvg.style.position = 'absolute';
-                        blockSvg.style.left = `${(x + j) * 50}px`;  // Calculate the left position
-                        blockSvg.style.top = `${(gridHeight - (y + i) - 1) * 50}px`;  // Calculate the top position, adjusted for bottom-up grid
-                        blockSvg.style.width = '50px';  // Assuming each grid cell is 50px
-                        blockSvg.style.height = '50px';
+                        blockSvg.style.left = `${(x + j) * blockWidth}px`;  // Calculate the left position
+                        blockSvg.style.top = `${(gridHeight - (y + i) - 1) * blockWidth}px`;  // Calculate the top position, adjusted for bottom-up grid
+                        blockSvg.style.width = `${blockWidth}px`;  // Assuming each grid cell is 50px
+                        blockSvg.style.height = `${blockWidth}px`;
   
                         gridContainer.appendChild(blockSvg);
                     }
@@ -153,8 +184,15 @@
         function populateGrid() {
             clearGridContainer();  // Clear all previous SVG blocks
             resetGridAndAreas();   // Reset grid and allowed areas to initial state
+            
+            sizeInput.addEventListener('input', updateGridSize);
+            opacityInput.addEventListener('input', updateGridOpacity);
         
+            updateGridSize(); // Call to set initial values
+            updateGridOpacity(); // Initial opacity setup
+
             const letterInput = document.getElementById('text').value.trim();
+            
             if (letterInput === 'א') {
                 allowedAreas = createAlephPattern();
             } else if (letterInput === 'ו') {
