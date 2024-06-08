@@ -1,23 +1,19 @@
-// assumption is blocks are longer than they are wide, 
-// for blocks taller than wide, flip 90 degrees left (based on svg)
-
 document.addEventListener("DOMContentLoaded", function () {
     const gridContainer = document.getElementById('tetris-grid');
     const sizeInput = document.getElementById('size');
     const opacityInput = document.getElementById('opacity');
     const createBtn = document.getElementById('create');
-    let gridWidth = 12;  // Changed from const to let
-    let gridHeight = 12; // Changed from const to let
-    let blockWidth = 50; // Default block width
+    let gridWidth = 12;
+    let gridHeight = 12;
+    let blockWidth = 50;
     let grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
-    let allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1)); // Example allowed areas
-    
+    let allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
 
     function populateGridCells() {
-        gridContainer.innerHTML = ''; // Clear existing cells
+        gridContainer.innerHTML = '';
         for (let i = 0; i < gridWidth * gridHeight; i++) {
             let cell = document.createElement('div');
-            cell.classList.add('grid-cell'); // Apply the border styling
+            cell.classList.add('grid-cell');
             gridContainer.appendChild(cell);
         }
     }
@@ -25,33 +21,34 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateGridSize() {
         gridWidth = parseInt(sizeInput.value);
         gridHeight = parseInt(sizeInput.value);
-        blockWidth = 600 / gridWidth; // Adjust block width to fit new grid size
+        blockWidth = 600 / gridWidth;
         gridContainer.style.gridTemplateColumns = `repeat(${gridWidth}, 1fr)`;
         gridContainer.style.gridTemplateRows = `repeat(${gridHeight}, 1fr)`;
 
-        populateGridCells();
+        return new Promise(resolve => {
+            populateGridCells();
+            resolve();
+        });
     }
-
-
-
 
     function updateGridOpacity() {
         let cells = document.querySelectorAll('.grid-cell');
         let opacity = opacityInput.value / 10;
 
-        cells.forEach(cell => {
-            cell.style.borderColor = `rgba(255, 255, 255, ${opacity})`; // Adjust border color opacity
+        return new Promise(resolve => {
+            cells.forEach(cell => {
+                cell.style.borderColor = `rgba(255, 255, 255, ${opacity})`;
+            });
+            resolve();
         });
     }
-
-
 
     function resetGridAndAreas() {
         grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
         allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
-        
-    }
 
+        return Promise.resolve();
+    }
 
     function getSelectedBlocks() {
         const selectedBlocks = [];
@@ -66,43 +63,53 @@ document.addEventListener("DOMContentLoaded", function () {
         ];
 
         allBlocks.forEach(block => {
-            if (document.getElementById(block.id).checked) {
+            const element = document.getElementById(block.id);
+            if (element && element.checked) {
                 selectedBlocks.push(block);
             }
         });
 
-        // If no blocks are selected, use all blocks
         return selectedBlocks.length > 0 ? selectedBlocks : allBlocks;
     }
-
 
     function rotateMatrix(matrix) {
         return matrix[0].map((val, index) => matrix.map(row => row[index]).reverse());
     }
 
+    
     function canPlaceBlock(block, x, y) {
-        let onTopOfBlock = false;
-        console.log(JSON.parse(JSON.stringify(allowedAreas)));
-        
+
+
         for (let i = 0; i < block.matrix.length; i++) {
             for (let j = 0; j < block.matrix[i].length; j++) {
                 if (block.matrix[i][j] === 1) {
                     let newY = y + i;
                     let newX = x + j;
-                    
-                    if (newX >= gridWidth || newY >= gridHeight || newX < 0 || newY < 0 ||
-                        grid[newY][newX] === 1 || allowedAreas[newY][newX] !== 1) {
+
+                    // Check if the block is within grid boundaries
+                    if (newX >= gridWidth || newY >= gridHeight || newX < 0 || newY < 0) {
+
                         return false;
                     }
-                    if (newY === 0 || grid[newY - 1][newX] === 1) {
-                        onTopOfBlock = true;
+
+                    // Check if the block overlaps with existing blocks
+                    if (grid[newY][newX] === 1) {
+
+                        return false;
+                    }
+
+                    // Check if the block is in allowed areas
+                    if (allowedAreas[newY][newX] !== 1) {
+
+                        return false;
                     }
                 }
             }
         }
-        return onTopOfBlock;
-    }
 
+
+        return true;
+    }
 
     function tryToPlaceBlock(block, startX, startY) {
         let rotationApplied = 0;
@@ -118,23 +125,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function placeBlock(block, x, y, rotation) {
-        
         for (let i = 0; i < block.matrix.length; i++) {
             for (let j = 0; j < block.matrix[i].length; j++) {
                 if (block.matrix[i][j] === 1) {
                     grid[y + i][x + j] = 1;
-                   
-                    allowedAreas[y + i][x + j] = 0; // Update allowed areas to reflect the placement
+                    allowedAreas[y + i][x + j] = 0;
 
-                    // Create and position a new SVG block
-                    const blockSvg = document.createElement('img');  // Use an <img> or <div> with background image
-                    blockSvg.src = block.svgUrl;  // Path to the single block SVG
-
-                    blockSvg.classList.add(block.id);  // Add color class
+                    const blockSvg = document.createElement('img');
+                    blockSvg.src = block.svgUrl;
+                    blockSvg.classList.add(block.id);
                     blockSvg.style.position = 'absolute';
-                    blockSvg.style.left = `${(x + j) * blockWidth}px`;  // Calculate the left position
-                    blockSvg.style.top = `${(gridHeight - (y + i) - 1) * blockWidth}px`;  // Calculate the top position, adjusted for bottom-up grid
-                    blockSvg.style.width = `${blockWidth}px`;  // Assuming each grid cell is 50px
+                    blockSvg.style.left = `${(x + j) * blockWidth}px`;
+                    blockSvg.style.top = `${(y + i) * blockWidth}px`; // Adjusted to match visual representation
+                    blockSvg.style.width = `${blockWidth}px`;
                     blockSvg.style.height = `${blockWidth}px`;
 
                     gridContainer.appendChild(blockSvg);
@@ -142,14 +145,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
+
     function checkSelectedBlocks(blocks) {
-        // Check if only blue and yellow are selected
         if (blocks.length === 2 && blocks.some(block => block.id === "blue") && blocks.some(block => block.id === "yellow")) {
             return true;
         }
         return false;
     }
-
 
     function downscaleArray(originalArray, targetWidth, targetHeight) {
         const originalHeight = originalArray.length;
@@ -171,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 let average = sum / count;
-                downscaledArray[y][x] = average > 0.5 ? 1 : 0; // Threshold of 0.5
+                downscaledArray[y][x] = average > 0.5 ? 1 : 0;
             }
         }
 
@@ -180,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function rasterize(text, fontUrl) {
         return new Promise((resolve, reject) => {
-            if (text != "") {
+            if (text !== "") {
                 opentype.load(fontUrl, function (err, font) {
                     if (err) {
                         alert('Font could not be loaded: ' + err);
@@ -190,20 +192,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         canvas.style.display = 'block';
                         const ctx = canvas.getContext('2d');
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        const fontSize = 1050;  // Appropriate font size
+                        const fontSize = 1050;
                         ctx.font = `${fontSize}px ${font.familyName}`;
                         ctx.textBaseline = "alphabetic";
                         ctx.fillText(text, 0, 600);
-    
+
                         setTimeout(() => {
                             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                             const binaryArray = [];
-    
+
                             for (let y = 0; y < canvas.height; y++) {
                                 let row = [];
                                 for (let x = 0; x < canvas.width; x++) {
                                     const index = (y * canvas.width + x) * 4;
-                                    const alpha = imageData.data[index + 3];  // Check alpha channel
+                                    const alpha = imageData.data[index + 3];
                                     row.push(alpha > 128 ? 1 : 0);
                                 }
                                 binaryArray.push(row);
@@ -212,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             allowedAreas = downscaleArray(binaryArray, gridWidth, gridHeight);
                         
                             resolve();
-                        }, 500); // Delay to ensure the text is fully drawn
+                        }, 500);
                     }
                 });
             } else {
@@ -221,34 +223,34 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    
-
 
     function populateGrid() {
         const letterInput = document.getElementById('text').value.trim();
         const fontUrl = document.getElementById('font-select').value;
-    
-        updateGridSize();
-        updateGridOpacity();
-        resetGridAndAreas();
         let blocks = getSelectedBlocks();
-    
-        if (checkSelectedBlocks(blocks)) {
-            alert("acab תבחר צבעים אחרים יא מכביסט הומו");
-            return;
-        }
-    
-        rasterize(letterInput, fontUrl).then(() => {
+        updateGridSize().then(() => {
+            return updateGridOpacity();
+        }).then(() => {
+            return resetGridAndAreas();
+        }).then(() => {
             
+    
+            if (checkSelectedBlocks(blocks)) {
+                alert("Please select different colors.");
+                return Promise.reject("Invalid block selection.");
+            }
+    
+            return rasterize(letterInput, fontUrl);
+        }).then(() => {
             let placementsPossible;
             do {
                 placementsPossible = false;
-                for (let y = gridHeight - 1; y >= 0; y--) {
+                for (let y = 0; y < gridHeight; y++) {  // Adjusted to start from top to bottom
                     for (let x = 0; x < gridWidth; x++) {
                         if (grid[y][x] === 0 && allowedAreas[y][x] === 1) {
                             const block = blocks[Math.floor(Math.random() * blocks.length)];
+                            
                             if (tryToPlaceBlock({ ...block }, x, y)) {
-                                
                                 placementsPossible = true;
                             }
                         }
@@ -256,16 +258,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             } while (placementsPossible);
         }).catch(error => {
-            console.error('Failed to rasterize:', error);
+            console.error('Failed to populate grid:', error);
         });
     }
-    
-
-
 
     sizeInput.addEventListener('input', updateGridSize);
     opacityInput.addEventListener('input', updateGridOpacity);
     createBtn.addEventListener('click', populateGrid);
-
-
 });
