@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 </head>
 <body>
-    <canvas id="canvas" width="600" height="600" style="border:1px solid #000;"></canvas>
+    <canvas id="canvas" width="600" height="600" style="display:none; border:1px solid #000;"></canvas>
     <script>
         // Load font asynchronously
         opentype.load('fonts/Shlumpi1.0-Regular.otf', function(err, font) {
@@ -15,6 +15,7 @@
                 alert('Font could not be loaded: ' + err);
             } else {
                 const canvas = document.getElementById('canvas');
+                canvas.style.display = `block`;
                 const ctx = canvas.getContext('2d');
 
                 // Prepare canvas for drawing
@@ -31,17 +32,22 @@
                 setTimeout(() => {
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     const binaryArray = [];
-                    
-                    // Convert image data to binary array
-                    for (let i = 0; i < imageData.data.length; i += 4) {
-                        const alpha = imageData.data[i + 3];  // Check alpha channel
-                        binaryArray.push(alpha > 128 ? 1 : 0);
-                    }
+                    // Convert image data to a 2D binary array
+                    for (let y = 0; y < canvas.height; y++) {
+                            let row = [];
+                            for (let x = 0; x < canvas.width; x++) {
+                                const index = (y * canvas.width + x) * 4;
+                                const alpha = imageData.data[index + 3];  // Check alpha channel
+                                row.push(alpha > 128 ? 1 : 0);
+                            }
+                            binaryArray.push(row);
+                        }
 
                     // Log the binaryArray in a structured way
                     console.log("Binary Array Length:", binaryArray.length);
                     console.log("Alpha values found (sample):", binaryArray.filter(x => x === 1).length);
                     console.log(binaryArray);
+                   // canvas.style.display = `none`;
                 }, 500); // A delay to ensure the text is fully drawn
             }
         });
