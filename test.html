@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rasterize Text to Grid</title>
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600" style="border:1px solid #000;"></canvas>
+    <script>
+        // Load font asynchronously
+        opentype.load('fonts/Shlumpi1.0-Regular.otf', function(err, font) {
+            if (err) {
+                alert('Font could not be loaded: ' + err);
+            } else {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Prepare canvas for drawing
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Set the font size
+                const fontSize = 1050;  // Increased font size for visibility
+                ctx.font = `${fontSize}px 'Shlumpi1.0-Regular'`;
+                ctx.textBaseline = "alphabetic";
+
+                // Position for drawing
+                ctx.fillText('ב',0,600)  // Draw at a visible position
+
+                setTimeout(() => {
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const binaryArray = [];
+                    
+                    // Convert image data to binary array
+                    for (let i = 0; i < imageData.data.length; i += 4) {
+                        const alpha = imageData.data[i + 3];  // Check alpha channel
+                        binaryArray.push(alpha > 128 ? 1 : 0);
+                    }
+
+                    // Log the binaryArray in a structured way
+                    console.log("Binary Array Length:", binaryArray.length);
+                    console.log("Alpha values found (sample):", binaryArray.filter(x => x === 1).length);
+                    console.log(binaryArray);
+                }, 500); // A delay to ensure the text is fully drawn
+            }
+        });
+    </script>
+</body>
+</html>

@@ -68,8 +68,6 @@ u{
 
 #tetris-grid{
     display: grid;
-    grid-template-columns: repeat(12, 1fr); /* Creates a 12x12 grid */
-    grid-template-rows: repeat(12, 1fr);
     gap: 1px;
     width: 600px; /* Adjust size as necessary */
     height: 600px;

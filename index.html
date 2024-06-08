@@ -7,7 +7,7 @@
     <title>Aleph Bet Tetris</title>
     <link rel="stylesheet" href="98.css">
     <link rel="stylesheet" href="styles.css">
-
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 </head>
 
 <body>
@@ -30,7 +30,7 @@
                         <div class="input-control">
                             <div class="field-row-stacked">
                                 <label for="size">Size</label>
-                                <input type="range" id="size" name="size" min="1" max="11" value="5">
+                                <input type="range" id="size" name="size" min="12" max="124" value="12">
                             </div>
                             <div class="field-row-stacked">
                                 <label for="opacity">Grid Opacity</label>
@@ -41,6 +41,15 @@
                                 <label for="text">Text</label>
                                 <input type="text" id="text" name="text">
 
+                            </div>
+                            <div class="field-row-stacked">
+                                <label for="font-select">Choose a Font:</label>
+                                <select id="font-select">
+                                    <option value="fonts/Shlumpi1.0-Regular.otf">Shlumpi Regular</option>
+                                    <option value="fonts/haim-classic-regular-fm.otf">haim classic regular fm</option>
+                                    <option value="fonts/yarden-regular-alefalefalef.otf">yarden regular alefalefalef</option>
+                                    
+                                </select>
                             </div>
                             <div class="field-row-stacked">
                                 <button id="create">Create</button>
@@ -90,7 +99,7 @@
 
                 </div>
             </div>
-            <div id="tetris-grid"></div>
+            <canvas id="tetris-grid"></canvas>
             <div class="controls-column2">
                 <div class="dimension-control">
                     <div class="window">
@@ -126,6 +135,7 @@
            
         </div>
     </div>
+    
         <script src="code.js"></script>
 </body>
 
