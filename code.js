@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 let average = sum / count;
-                downscaledArray[y][x] = average > 0.5 ? 1 : 0;
+                downscaledArray[y][x] = average > 0.1 ? 1 : 0;
             }
         }
 
