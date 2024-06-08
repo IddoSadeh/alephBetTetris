@@ -10,7 +10,7 @@
     <canvas id="canvas" width="600" height="600" style="display:none; border:1px solid #000;"></canvas>
     <script>
         // Load font asynchronously
-        opentype.load('fonts/Shlumpi1.0-Regular.otf', function(err, font) {
+        opentype.load('fonts/haim-classic-regular-fm.otf', function(err, font) {
             if (err) {
                 alert('Font could not be loaded: ' + err);
             } else {
@@ -23,7 +23,7 @@
 
                 // Set the font size
                 const fontSize = 1050;  // Increased font size for visibility
-                ctx.font = `${fontSize}px 'Shlumpi1.0-Regular'`;
+                ctx.font = `${fontSize}px 'haim-classic-regular-fm'`;
                 ctx.textBaseline = "alphabetic";
 
                 // Position for drawing
