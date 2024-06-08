@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const sizeInput = document.getElementById('size');
     const opacityInput = document.getElementById('opacity');
     const createBtn = document.getElementById('create');
+    const saveBtn = document.getElementById('save'); // Save button
+    const fontUpload = document.getElementById('font-upload'); // Font upload input
     let gridWidth = 12;
     let gridHeight = 12;
     let blockWidth = 50;
@@ -76,10 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return matrix[0].map((val, index) => matrix.map(row => row[index]).reverse());
     }
 
-    
     function canPlaceBlock(block, x, y) {
-
-
         for (let i = 0; i < block.matrix.length; i++) {
             for (let j = 0; j < block.matrix[i].length; j++) {
                 if (block.matrix[i][j] === 1) {
@@ -88,26 +87,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     // Check if the block is within grid boundaries
                     if (newX >= gridWidth || newY >= gridHeight || newX < 0 || newY < 0) {
-
                         return false;
                     }
 
                     // Check if the block overlaps with existing blocks
                     if (grid[newY][newX] === 1) {
-
                         return false;
                     }
 
                     // Check if the block is in allowed areas
                     if (allowedAreas[newY][newX] !== 1) {
-
                         return false;
                     }
                 }
             }
         }
-
-
         return true;
     }
 
@@ -179,6 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return downscaledArray;
     }
+
     function rasterize(text, fontUrl) {
         return new Promise((resolve, reject) => {
             if (text !== "") {
@@ -191,31 +186,31 @@ document.addEventListener("DOMContentLoaded", function () {
                         canvas.style.display = 'block';
                         const ctx = canvas.getContext('2d');
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
                         // Calculate block size and initial font size
                         const blockSize = 600 / gridWidth;
                         let fontSize = 600; // Start with a large font size
-    
+
                         // Function to check if the text fits within the canvas
                         const doesTextFit = (fontSize) => {
                             const textPath = font.getPath(text, 0, 0, fontSize);
                             const box = textPath.getBoundingBox();
                             return (box.x2 - box.x1 <= canvas.width) && (box.y2 - box.y1 <= canvas.height);
                         };
-    
+
                         // Adjust the font size to fit the canvas
                         while (fontSize > 0 && !doesTextFit(fontSize)) {
                             fontSize -= 1;
                         }
-    
+
                         // Get the text path and its bounding box with the final font size
                         const textPath = font.getPath(text, 0, 0, fontSize);
                         const box = textPath.getBoundingBox();
-    
+
                         // Calculate offsets to position the text centered
                         const xOffset = (canvas.width - (box.x2 - box.x1)) / 2 - box.x1;
                         const yOffset = (canvas.height - (box.y2 - box.y1)) / 2 - box.y1;
-    
+
                         // Render the text
                         ctx.beginPath();
                         textPath.commands.forEach(function (cmd) {
@@ -232,11 +227,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                         });
                         ctx.fill();
-    
+
                         setTimeout(() => {
                             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                             const binaryArray = [];
-    
+
                             for (let y = 0; y < canvas.height; y++) {
                                 let row = [];
                                 for (let x = 0; x < canvas.width; x++) {
@@ -246,12 +241,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                 }
                                 binaryArray.push(row);
                             }
-    
 
-    
                             canvas.style.display = 'none';
-                            allowedAreas =  moveContentToBottom(downscaleArray(binaryArray, gridWidth, gridHeight));
-    
+                            allowedAreas = moveContentToBottom(downscaleArray(binaryArray, gridWidth, gridHeight));
+
                             resolve();
                         }, 500);
                     }
@@ -262,11 +255,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    
+
     function moveContentToBottom(array) {
         const height = array.length;
         const width = array[0].length;
-    
+
         // Find the first row from the bottom that contains any 1s
         let firstRowWithContentFromBottom = -1;
         for (let y = height - 1; y >= 0; y--) {
@@ -275,24 +268,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 break;
             }
         }
-    
+
         // Calculate the number of rows to shift the content down
         const rowsToShift = height - 1 - firstRowWithContentFromBottom;
-    
+
         // Create a new array with the same dimensions
         const newArray = Array.from({ length: height }, () => new Array(width).fill(0));
-    
+
         // Copy the content to the new array shifted down by rowsToShift
         for (let y = 0; y < height; y++) {
             if (y + rowsToShift < height) {
                 newArray[y + rowsToShift] = array[y];
             }
         }
-    
+
         return newArray;
     }
-    
-    
+
     function populateGrid() {
         const letterInput = document.getElementById('text').value.trim();
         const fontUrl = document.getElementById('font-select').value;
@@ -302,13 +294,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }).then(() => {
             return resetGridAndAreas();
         }).then(() => {
-            
-    
+
             if (checkSelectedBlocks(blocks)) {
                 alert("Please select different colors.");
                 return Promise.reject("Invalid block selection.");
             }
-    
+
             return rasterize(letterInput, fontUrl);
         }).then(() => {
             let placementsPossible;
@@ -318,7 +309,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     for (let x = 0; x < gridWidth; x++) {
                         if (grid[y][x] === 0 && allowedAreas[y][x] === 1) {
                             const block = blocks[Math.floor(Math.random() * blocks.length)];
-                            
+
                             if (tryToPlaceBlock({ ...block }, x, y)) {
                                 placementsPossible = true;
                             }
@@ -334,4 +325,36 @@ document.addEventListener("DOMContentLoaded", function () {
     sizeInput.addEventListener('input', updateGridSize);
     opacityInput.addEventListener('input', updateGridOpacity);
     createBtn.addEventListener('click', populateGrid);
+
+    // Save button event listener
+    saveBtn.addEventListener('click', function () {
+        html2canvas(gridContainer, {
+            onrendered: function (canvas) {
+                var link = document.createElement('a');
+                link.href = canvas.toDataURL('image/jpeg');
+                link.download = 'tetris-grid.jpg';
+                link.click();
+            }
+        });
+    });
+
+    // Font upload event listener
+    fontUpload.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const fontData = e.target.result;
+                opentype.parse(fontData, function (err, font) {
+                    if (err) {
+                        alert('Font could not be parsed: ' + err);
+                    } else {
+                        const text = document.getElementById('text').value;
+                        rasterize(text, font);
+                    }
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    });
 });
