@@ -1,56 +1,154 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const gridContainer = document.getElementById('tetris-grid');
+    const canvas = document.getElementById('tetris-canvas');
+    const ctx = canvas.getContext('2d');
     const sizeInput = document.getElementById('size');
     const opacityInput = document.getElementById('opacity');
     const createBtn = document.getElementById('create');
-    const saveBtn = document.getElementById('save'); // Save button
-    const fontUpload = document.getElementById('font-upload'); // Font upload input
+    const saveBtn = document.getElementById('save');
+    const fontUpload = document.getElementById('font-upload');
     let gridWidth = 12;
     let gridHeight = 12;
     let blockWidth = 50;
     let grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
     let allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
 
-    function populateGridCells() {
-        gridContainer.innerHTML = '';
-        for (let i = 0; i < gridWidth * gridHeight; i++) {
-            let cell = document.createElement('div');
-            cell.classList.add('grid-cell');
-            gridContainer.appendChild(cell);
-        }
-    }
-
-    function updateGridSize() {
+    function updateCanvasSize() {
         gridWidth = parseInt(sizeInput.value);
         gridHeight = parseInt(sizeInput.value);
-        blockWidth = 600 / gridWidth;
-        gridContainer.style.gridTemplateColumns = `repeat(${gridWidth}, 1fr)`;
-        gridContainer.style.gridTemplateRows = `repeat(${gridHeight}, 1fr)`;
-
+        blockWidth = canvas.width / gridWidth;
         return new Promise(resolve => {
-            populateGridCells();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
             resolve();
         });
     }
 
-    function updateGridOpacity() {
-        let cells = document.querySelectorAll('.grid-cell');
-        let opacity = opacityInput.value / 10;
-
-        return new Promise(resolve => {
-            cells.forEach(cell => {
-                cell.style.borderColor = `rgba(255, 255, 255, ${opacity})`;
-            });
-            resolve();
-        });
+    function updateCanvasOpacity() {
+        const opacity = opacityInput.value / 10;
+        canvas.style.borderColor = `rgba(255, 255, 255, ${opacity})`;
+        drawGrid();
+        return Promise.resolve();
     }
 
     function resetGridAndAreas() {
         grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
         allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
-
         return Promise.resolve();
     }
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = `rgba(255, 255, 255, ${opacityInput.value / 10})`;
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i <= gridWidth; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * blockWidth, 0);
+            ctx.lineTo(i * blockWidth, canvas.height);
+            ctx.stroke();
+        }
+
+        for (let i = 0; i <= gridHeight; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, i * blockWidth);
+            ctx.lineTo(canvas.width, i * blockWidth);
+            ctx.stroke();
+        }
+    }
+
+    function drawBlock(block, x, y) {
+        const img = new Image();
+        img.src = block.svgUrl;
+        img.onload = () => {
+            ctx.drawImage(img, x * blockWidth, y * blockWidth, blockWidth, blockWidth);
+        };
+    }
+
+    function placeBlock(block, x, y) {
+        for (let i = 0; i < block.matrix.length; i++) {
+            for (let j = 0; j < block.matrix[i].length; j++) {
+                if (block.matrix[i][j] === 1) {
+                    grid[y + i][x + j] = 1;
+                    allowedAreas[y + i][x + j] = 0;
+                    drawBlock(block, x + j, y + i);
+                }
+            }
+        }
+    }
+
+    function populateCanvas() {
+        const letterInput = document.getElementById('text').value.trim();
+        const fontUrl = document.getElementById('font-select').value;
+        let blocks = getSelectedBlocks();
+        updateCanvasSize().then(() => {
+            return updateCanvasOpacity();
+        }).then(() => {
+            return resetGridAndAreas();
+        }).then(() => {
+            return rasterize(letterInput, fontUrl);
+        }).then(() => {
+            let placementsPossible;
+            do {
+                placementsPossible = false;
+                for (let y = 0; y < gridHeight; y++) {
+                    for (let x = 0; x < gridWidth; x++) {
+                        if (grid[y][x] === 0 && allowedAreas[y][x] === 1) {
+                            const block = blocks[Math.floor(Math.random() * blocks.length)];
+                            if (tryToPlaceBlock({ ...block }, x, y)) {
+                                placementsPossible = true;
+                            }
+                        }
+                    }
+                }
+            } while (placementsPossible);
+        }).catch(error => {
+            console.error('Failed to populate grid:', error);
+        });
+    }
+
+    sizeInput.addEventListener('input', updateCanvasSize);
+    opacityInput.addEventListener('input', updateCanvasOpacity);
+    createBtn.addEventListener('click', populateCanvas);
+
+    saveBtn.addEventListener('click', function () {
+        // Create a temporary canvas to downscale the high-resolution canvas
+        const tempCanvas = document.createElement('canvas');
+        const originalWidth = canvas.width / 0.1;
+        const originalHeight = canvas.height / 0.1;
+        tempCanvas.width = originalWidth;
+        tempCanvas.height = originalHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+    
+        // Draw the high-resolution canvas onto the temporary canvas
+        tempCtx.drawImage(canvas, 0, 0, originalWidth, originalHeight);
+    
+        // Save the image from the temporary canvas
+        tempCanvas.toBlob(function (blob) {
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'grid-image.png';
+            link.click();
+        });
+    });
+    
+    fontUpload.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const fontData = e.target.result;
+                opentype.parse(fontData, function (err, font) {
+                    if (err) {
+                        alert('Font could not be parsed: ' + err);
+                    } else {
+                        const text = document.getElementById('text').value;
+                        rasterize(text, font);
+                    }
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    });
 
     function getSelectedBlocks() {
         const selectedBlocks = [];
@@ -85,17 +183,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     let newY = y + i;
                     let newX = x + j;
 
-                    // Check if the block is within grid boundaries
                     if (newX >= gridWidth || newY >= gridHeight || newX < 0 || newY < 0) {
                         return false;
                     }
 
-                    // Check if the block overlaps with existing blocks
                     if (grid[newY][newX] === 1) {
                         return false;
                     }
 
-                    // Check if the block is in allowed areas
                     if (allowedAreas[newY][newX] !== 1) {
                         return false;
                     }
@@ -114,35 +209,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             block.matrix = rotateMatrix(block.matrix);
             rotationApplied++;
-        }
-        return false;
-    }
-
-    function placeBlock(block, x, y, rotation) {
-        for (let i = 0; i < block.matrix.length; i++) {
-            for (let j = 0; j < block.matrix[i].length; j++) {
-                if (block.matrix[i][j] === 1) {
-                    grid[y + i][x + j] = 1;
-                    allowedAreas[y + i][x + j] = 0;
-
-                    const blockSvg = document.createElement('img');
-                    blockSvg.src = block.svgUrl;
-                    blockSvg.classList.add(block.id);
-                    blockSvg.style.position = 'absolute';
-                    blockSvg.style.left = `${(x + j) * blockWidth}px`;
-                    blockSvg.style.top = `${(y + i) * blockWidth}px`; // Adjusted to match visual representation
-                    blockSvg.style.width = `${blockWidth}px`;
-                    blockSvg.style.height = `${blockWidth}px`;
-
-                    gridContainer.appendChild(blockSvg);
-                }
-            }
-        }
-    }
-
-    function checkSelectedBlocks(blocks) {
-        if (blocks.length === 2 && blocks.some(block => block.id === "blue") && blocks.some(block => block.id === "yellow")) {
-            return true;
         }
         return false;
     }
@@ -187,31 +253,25 @@ document.addEventListener("DOMContentLoaded", function () {
                         const ctx = canvas.getContext('2d');
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                        // Calculate block size and initial font size
                         const blockSize = 600 / gridWidth;
-                        let fontSize = 600; // Start with a large font size
+                        let fontSize = 600;
 
-                        // Function to check if the text fits within the canvas
                         const doesTextFit = (fontSize) => {
                             const textPath = font.getPath(text, 0, 0, fontSize);
                             const box = textPath.getBoundingBox();
                             return (box.x2 - box.x1 <= canvas.width) && (box.y2 - box.y1 <= canvas.height);
                         };
 
-                        // Adjust the font size to fit the canvas
                         while (fontSize > 0 && !doesTextFit(fontSize)) {
                             fontSize -= 1;
                         }
 
-                        // Get the text path and its bounding box with the final font size
                         const textPath = font.getPath(text, 0, 0, fontSize);
                         const box = textPath.getBoundingBox();
 
-                        // Calculate offsets to position the text centered
                         const xOffset = (canvas.width - (box.x2 - box.x1)) / 2 - box.x1;
                         const yOffset = (canvas.height - (box.y2 - box.y1)) / 2 - box.y1;
 
-                        // Render the text
                         ctx.beginPath();
                         textPath.commands.forEach(function (cmd) {
                             if (cmd.type === 'M') {
@@ -260,7 +320,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const height = array.length;
         const width = array[0].length;
 
-        // Find the first row from the bottom that contains any 1s
         let firstRowWithContentFromBottom = -1;
         for (let y = height - 1; y >= 0; y--) {
             if (array[y].some(cell => cell === 1)) {
@@ -269,13 +328,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Calculate the number of rows to shift the content down
         const rowsToShift = height - 1 - firstRowWithContentFromBottom;
 
-        // Create a new array with the same dimensions
         const newArray = Array.from({ length: height }, () => new Array(width).fill(0));
 
-        // Copy the content to the new array shifted down by rowsToShift
         for (let y = 0; y < height; y++) {
             if (y + rowsToShift < height) {
                 newArray[y + rowsToShift] = array[y];
@@ -284,89 +340,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return newArray;
     }
-
-    function populateGrid() {
-        const letterInput = document.getElementById('text').value.trim();
-        const fontUrl = document.getElementById('font-select').value;
-        let blocks = getSelectedBlocks();
-        updateGridSize().then(() => {
-            return updateGridOpacity();
-        }).then(() => {
-            return resetGridAndAreas();
-        }).then(() => {
-
-            if (checkSelectedBlocks(blocks)) {
-                alert("Please select different colors.");
-                return Promise.reject("Invalid block selection.");
-            }
-
-            return rasterize(letterInput, fontUrl);
-        }).then(() => {
-            let placementsPossible;
-            do {
-                placementsPossible = false;
-                for (let y = 0; y < gridHeight; y++) {  // Adjusted to start from top to bottom
-                    for (let x = 0; x < gridWidth; x++) {
-                        if (grid[y][x] === 0 && allowedAreas[y][x] === 1) {
-                            const block = blocks[Math.floor(Math.random() * blocks.length)];
-
-                            if (tryToPlaceBlock({ ...block }, x, y)) {
-                                placementsPossible = true;
-                            }
-                        }
-                    }
-                }
-            } while (placementsPossible);
-        }).catch(error => {
-            console.error('Failed to populate grid:', error);
-        });
-    }
-
-    sizeInput.addEventListener('input', updateGridSize);
-    opacityInput.addEventListener('input', updateGridOpacity);
-    createBtn.addEventListener('click', populateGrid);
-
-
-    // Save button event listener
-    saveBtn.addEventListener('click', function () {
-        updateGridOpacity().then(() => {
-            const svgContainer = document.getElementById('tetris-grid');
-    
-            html2canvas(svgContainer, {
-                backgroundColor: null,
-                scale: 2, // Increase the scale to improve quality
-            }).then(canvas => {
-                canvas.toBlob(function (blob) {
-                    let link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'grid-image.png';
-                    link.click();
-                });
-            }).catch(error => {
-                console.error('Error capturing the div:', error);
-            });
-        });
-    });
-    
-    
-
-    // Font upload event listener
-    fontUpload.addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const fontData = e.target.result;
-                opentype.parse(fontData, function (err, font) {
-                    if (err) {
-                        alert('Font could not be parsed: ' + err);
-                    } else {
-                        const text = document.getElementById('text').value;
-                        rasterize(text, font);
-                    }
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        }
-    });
 });

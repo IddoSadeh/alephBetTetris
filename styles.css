@@ -2,15 +2,15 @@ body {
     background-color: black;
     color: white;
     margin: 0;  
-
 }
+
 .window-custom {
     display: flex;
     flex-direction: column;
     padding: 0;
     margin: 0;
-
 }
+
 .title-bar {
     background:linear-gradient(90deg,#00007B,#1085D2);
     padding: 5px;
@@ -23,62 +23,57 @@ body {
     display: flex;
 }
 
-.tab-bar{
+.tab-bar {
     background-color: #c0c0c0;
     padding: 5px 0;
 }
-u{
+
+u {
     color: black;
     padding: 5px;
 }
 
-.window-body-custom{
+.window-body-custom {
     display: flex;
     justify-content: space-between;
     padding: 20px;
     flex-grow: 1; 
-    background-color:black;
-    color:black;
+    background-color: black;
+    color: black;
     margin: 0;
 }
-.controls-column1{
+
+.controls-column1 {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    
-    
 }
-.input-control{
+
+.input-control {
     background-color: #c0c0c0;
     display: flex;
     flex-direction: column;
 }
-.pieces-checkbox{
+
+.pieces-checkbox {
     background-color: #c0c0c0;
     display: flex;
     flex-direction: column;
 }
+
 .dimension-control {
     display: flex;
-    justify-content: flex-end; /* Aligns children to the right */
-    align-items: center; /* Centers children vertically */
-    height: 100%; /* Optional: Set a height if needed */
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
 }
 
-#tetris-grid{
-    display: grid;
-    grid-template-columns: repeat(12, 1fr); /* Creates a 12x12 grid */
-    grid-template-rows: repeat(12, 1fr);
-    gap: 1px;
-    width: 600px; /* Adjust size as necessary */
+#tetris-canvas {
+    width: 600px;
     height: 600px;
-    position: relative;
-    border: 2px solid white;
-}
-.grid-cell {
-    border: 1px solid rgba(255, 255, 255, 0.8); /* Initial semi-transparent white border */
+    border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
-.footer{
+.footer {
     padding: 0 20px 0;
 }
