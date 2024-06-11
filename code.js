@@ -326,17 +326,29 @@ document.addEventListener("DOMContentLoaded", function () {
     opacityInput.addEventListener('input', updateGridOpacity);
     createBtn.addEventListener('click', populateGrid);
 
+
     // Save button event listener
     saveBtn.addEventListener('click', function () {
-        html2canvas(gridContainer, {
-            onrendered: function (canvas) {
-                var link = document.createElement('a');
-                link.href = canvas.toDataURL('image/jpeg');
-                link.download = 'tetris-grid.jpg';
-                link.click();
-            }
+        updateGridOpacity().then(() => {
+            const svgContainer = document.getElementById('tetris-grid');
+    
+            html2canvas(svgContainer, {
+                backgroundColor: null,
+                scale: 2, // Increase the scale to improve quality
+            }).then(canvas => {
+                canvas.toBlob(function (blob) {
+                    let link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'grid-image.png';
+                    link.click();
+                });
+            }).catch(error => {
+                console.error('Error capturing the div:', error);
+            });
         });
     });
+    
+    
 
     // Font upload event listener
     fontUpload.addEventListener('change', function (event) {
