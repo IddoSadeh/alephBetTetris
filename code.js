@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const saveBtn = document.getElementById('save');
     const exportFormat = document.getElementById('export-format');
     const fontUpload = document.getElementById('font-upload');
+    const fontSelect = document.getElementById('font-select');
     let gridWidth = 12;
     let gridHeight = 12;
     let blockWidth = 50;
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function populateCanvas() {
         const letterInput = textInput.value.trim();
-        const fontUrl = document.getElementById('font-select').value;
+        const fontUrl = fontSelect.value;
         let blocks = getSelectedBlocks();
         updateCanvasSize().then(() => {
             return updateCanvasOpacity();
@@ -223,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     } else {
                         const canvas = document.getElementById('canvas');
                         canvas.style.display = 'block';
-                        const ctx = canvas.getContext('2d');
+                        const ctx = canvas.getContext('2d',{ willReadFrequently: true });
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                         const blockSize = 600 / gridWidth;
@@ -315,7 +316,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Event listeners
-    sizeInput.addEventListener('input', populateCanvas); 
+    sizeInput.addEventListener('input', () => {
+        const textValue = textInput.value.trim();
+        if (isValidHebrewCharacter(textValue)) {
+            populateCanvas();
+        } else {
+            updateCanvasSize();
+        }
+    });
+
     opacityInput.addEventListener('input', updateCanvasOpacity);
     textInput.addEventListener('input', () => {
         const textValue = textInput.value.trim();
@@ -325,6 +334,8 @@ document.addEventListener("DOMContentLoaded", function () {
             console.warn('Invalid input: Only a single Hebrew character is allowed.');
         }
     });
+    fontSelect.addEventListener('input', populateCanvas); 
+
 
     saveBtn.addEventListener('click', function () {
         // Create a temporary canvas to downscale the high-resolution canvas
@@ -333,7 +344,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const originalHeight = canvas.height / 0.1;
         tempCanvas.width = originalWidth;
         tempCanvas.height = originalHeight;
-        const tempCtx = tempCanvas.getContext('2d');
+        const tempCtx = tempCanvas.getContext('2d',{ willReadFrequently: true });
         
         // Draw the high-resolution canvas onto the temporary canvas
         tempCtx.drawImage(canvas, 0, 0, originalWidth, originalHeight);
@@ -356,18 +367,38 @@ document.addEventListener("DOMContentLoaded", function () {
             const reader = new FileReader();
             reader.onload = function (e) {
                 const fontData = e.target.result;
-                opentype.parse(fontData, function (err, font) {
-                    if (err) {
-                        alert('Font could not be parsed: ' + err);
+                
+                try {
+                    const font = opentype.parse(fontData);
+    
+                    // Add the uploaded font to the dropdown menu and select it
+                    const option = document.createElement('option');
+                    option.value = URL.createObjectURL(new Blob([fontData], { type: 'font/ttf' }));
+                    option.text = file.name;
+                    fontSelect.add(option);
+                    fontSelect.value = option.value;
+    
+                    // Repopulate the canvas
+                    const textValue = textInput.value.trim();
+                    if (isValidHebrewCharacter(textValue)) {
+                        populateCanvas();
                     } else {
-                        const text = document.getElementById('text').value;
-                        rasterize(text, font);
+                        console.warn('Invalid input: Only a single Hebrew character is allowed.');
                     }
-                });
+                } catch (err) {
+                    alert('Font could not be parsed: ' + err);
+                }
+            };
+            reader.onerror = function (e) {
+                alert('Error reading file: ' + e);
             };
             reader.readAsArrayBuffer(file);
+        } else {
+            alert('No file selected');
         }
     });
+    
+    
 
     // Initial grid drawing on page load
     drawGrid();
