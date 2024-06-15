@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Define variables
     const canvas = document.getElementById('tetris-canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const sizeInput = document.getElementById('size');
     const opacityInput = document.getElementById('opacity');
     const textInput = document.getElementById('text');
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
     let allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
 
+    // Define functions
     function updateCanvasSize() {
         gridWidth = parseInt(sizeInput.value);
         gridHeight = parseInt(sizeInput.value);
@@ -38,24 +40,34 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function drawGrid() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = `rgba(255, 255, 255, ${opacityInput.value / 10})`;
-        ctx.lineWidth = 1;
 
+        ctx.lineWidth = 1;
+    
         for (let i = 0; i <= gridWidth; i++) {
             ctx.beginPath();
             ctx.moveTo(i * blockWidth, 0);
             ctx.lineTo(i * blockWidth, canvas.height);
+            // Draw the line in black first
+            ctx.strokeStyle = `rgba(0, 0, 0, 1)`;
+            ctx.stroke();
+            // Draw the line in white with the specified opacity
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacityInput.value / 10})`;
             ctx.stroke();
         }
-
+    
         for (let i = 0; i <= gridHeight; i++) {
             ctx.beginPath();
             ctx.moveTo(0, i * blockWidth);
             ctx.lineTo(canvas.width, i * blockWidth);
+            // Draw the line in black first
+            ctx.strokeStyle = `rgba(0, 0, 0, 1)`;
+            ctx.stroke();
+            // Draw the line in white with the specified opacity
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacityInput.value / 10})`;
             ctx.stroke();
         }
     }
+    
 
     function drawBlock(block, x, y) {
         const img = new Image();
@@ -110,61 +122,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function isValidHebrewCharacter(input) {
         return /^[\u0590-\u05FF]$/.test(input);
     }
-
-    sizeInput.addEventListener('input', updateCanvasSize);
-    opacityInput.addEventListener('input', updateCanvasOpacity);
-    textInput.addEventListener('input', () => {
-        const textValue = textInput.value.trim();
-        if (isValidHebrewCharacter(textValue)) {
-            populateCanvas();
-        } else {
-            console.warn('Invalid input: Only a single Hebrew character is allowed.');
-        }
-    });
-
-    saveBtn.addEventListener('click', function () {
-        // Create a temporary canvas to downscale the high-resolution canvas
-        const tempCanvas = document.createElement('canvas');
-        const originalWidth = canvas.width / 0.1;
-        const originalHeight = canvas.height / 0.1;
-        tempCanvas.width = originalWidth;
-        tempCanvas.height = originalHeight;
-        const tempCtx = tempCanvas.getContext('2d');
-        
-        // Draw the high-resolution canvas onto the temporary canvas
-        tempCtx.drawImage(canvas, 0, 0, originalWidth, originalHeight);
-    
-        const format = exportFormat.value;
-        const extension = format === 'jpeg' ? 'jpg' : format;
-        const mimeType = `image/${format}`;
-    
-        tempCanvas.toBlob(function (blob) {
-            let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `grid-image.${extension}`;
-            link.click();
-        }, mimeType);
-    });
-    
-    
-    fontUpload.addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const fontData = e.target.result;
-                opentype.parse(fontData, function (err, font) {
-                    if (err) {
-                        alert('Font could not be parsed: ' + err);
-                    } else {
-                        const text = document.getElementById('text').value;
-                        rasterize(text, font);
-                    }
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        }
-    });
 
     function getSelectedBlocks() {
         const selectedBlocks = [];
@@ -356,6 +313,61 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return newArray;
     }
+
+    // Event listeners
+    sizeInput.addEventListener('input', populateCanvas); 
+    opacityInput.addEventListener('input', updateCanvasOpacity);
+    textInput.addEventListener('input', () => {
+        const textValue = textInput.value.trim();
+        if (isValidHebrewCharacter(textValue)) {
+            populateCanvas();
+        } else {
+            console.warn('Invalid input: Only a single Hebrew character is allowed.');
+        }
+    });
+
+    saveBtn.addEventListener('click', function () {
+        // Create a temporary canvas to downscale the high-resolution canvas
+        const tempCanvas = document.createElement('canvas');
+        const originalWidth = canvas.width / 0.1;
+        const originalHeight = canvas.height / 0.1;
+        tempCanvas.width = originalWidth;
+        tempCanvas.height = originalHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        // Draw the high-resolution canvas onto the temporary canvas
+        tempCtx.drawImage(canvas, 0, 0, originalWidth, originalHeight);
+    
+        const format = exportFormat.value;
+        const extension = format === 'jpeg' ? 'jpg' : format;
+        const mimeType = `image/${format}`;
+    
+        tempCanvas.toBlob(function (blob) {
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `grid-image.${extension}`;
+            link.click();
+        }, mimeType);
+    });
+
+    fontUpload.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const fontData = e.target.result;
+                opentype.parse(fontData, function (err, font) {
+                    if (err) {
+                        alert('Font could not be parsed: ' + err);
+                    } else {
+                        const text = document.getElementById('text').value;
+                        rasterize(text, font);
+                    }
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    });
 
     // Initial grid drawing on page load
     drawGrid();
