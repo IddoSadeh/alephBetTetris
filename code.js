@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const opacityInput = document.getElementById('opacity');
     const textInput = document.getElementById('text');
     const saveBtn = document.getElementById('save');
+    const exportFormat = document.getElementById('export-format');
     const fontUpload = document.getElementById('font-upload');
     let gridWidth = 12;
     let gridHeight = 12;
@@ -129,18 +130,22 @@ document.addEventListener("DOMContentLoaded", function () {
         tempCanvas.width = originalWidth;
         tempCanvas.height = originalHeight;
         const tempCtx = tempCanvas.getContext('2d');
-    
+        
         // Draw the high-resolution canvas onto the temporary canvas
         tempCtx.drawImage(canvas, 0, 0, originalWidth, originalHeight);
     
-        // Save the image from the temporary canvas
+        const format = exportFormat.value;
+        const extension = format === 'jpeg' ? 'jpg' : format;
+        const mimeType = `image/${format}`;
+    
         tempCanvas.toBlob(function (blob) {
             let link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'grid-image.png';
+            link.download = `grid-image.${extension}`;
             link.click();
-        });
+        }, mimeType);
     });
+    
     
     fontUpload.addEventListener('change', function (event) {
         const file = event.target.files[0];
