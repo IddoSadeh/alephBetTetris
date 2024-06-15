@@ -9,11 +9,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const exportFormat = document.getElementById('export-format');
     const fontUpload = document.getElementById('font-upload');
     const fontSelect = document.getElementById('font-select');
+    const checkboxes = document.querySelectorAll('.pieces-checkbox input[type=checkbox]');
     let gridWidth = 12;
     let gridHeight = 12;
     let blockWidth = 50;
     let grid = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(0));
     let allowedAreas = Array.from(Array(gridHeight), () => new Array(gridWidth).fill(1));
+    let repopulateTimeout;
 
     // Define functions
     function updateCanvasSize() {
@@ -398,7 +400,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
     
-    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            clearTimeout(repopulateTimeout);
+            repopulateTimeout = setTimeout(() => {
+                const textValue = textInput.value.trim();
+                if (isValidHebrewCharacter(textValue)) {
+                    populateCanvas();
+                }
+            }, 1000); // Wait for 1 second before repopulating
+        });
+    });
 
     // Initial grid drawing on page load
     drawGrid();
