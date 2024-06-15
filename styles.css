@@ -1,3 +1,8 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Hide horizontal scroll */
+}
 body {
     background-color: black;
     color: white;
