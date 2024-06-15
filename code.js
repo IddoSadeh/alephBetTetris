@@ -340,4 +340,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return newArray;
     }
+    drawGrid();
 });
