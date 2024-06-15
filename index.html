@@ -31,6 +31,8 @@
                 <div class="window">
                     <div class="window-body">
                         <div class="input-control">
+
+
                             <div class="field-row-stacked">
                                 <label for="size">Size</label>
                                 <input type="range" id="size" name="size" min="12" max="124" value="12">
@@ -50,8 +52,9 @@
                                 <select id="font-select">
                                     <option value="fonts/Shlumpi1.0-Regular.otf">Shlumpi Regular</option>
                                     <option value="fonts/haim-classic-regular-fm.otf">haim classic regular fm</option>
-                                    <option value="fonts/yarden-regular-alefalefalef.otf">yarden regular alefalefalef</option>
-                                    
+                                    <option value="fonts/yarden-regular-alefalefalef.otf">yarden regular alefalefalef
+                                    </option>
+
                                 </select>
                             </div>
                             <div class="field-row-stacked">
@@ -65,11 +68,13 @@
                                     <option value="jpeg">Export as JPEG</option>
                                     <option value="obj">Export as OBJ</option>
                                 </select>
-                            </div>                            
+                            </div>
                             <div class="field-row-stacked">
                                 <button id="save">Save</button>
                             </div>
-
+                            <div class="field-row-stacked">
+                                <button id="help-button">Help</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -111,6 +116,23 @@
 
                 </div>
             </div>
+
+            <div id="welcome-screen" class="window welcome-screen">
+                <div class="title-bar">
+                    <div class="title-bar-text">Welcome to Ormitus Tetris Typography Generator</div>
+                </div>
+                <div class="window-body">
+
+                    <div class="field-row-stacked">
+                        <p>Welcome! Use this tool to generate Tetris-style typography.</p>
+                        <p>Input a Hebrew letter in the textbox to the left to start.</p>
+                        <p>The canvas will automatically update as you make changes to the settings.</p>
+                        <p>Currently the app will only work for Hebrew fonts and single letters.</p>
+                        <button id="close-welcome">Close</button>
+                    </div>
+
+                </div>
+            </div>
             <canvas id="tetris-canvas" width="600" height="600"></canvas>
             <div class="controls-column2">
                 <div class="dimension-control">
@@ -138,19 +160,19 @@
             </div>
         </div>
         <div class="footer" style="display:flex; justify-content: space-between;">
-           <p> Ori Mor - Experimental Typography Class 2024</p>
-           <div class="links">
-            <a href="https://www.linkedin.com/in/ori-mor-3a751a1a7/" style="color:white;">LinkedIn</a> 
-            <a href="https://www.instagram.com/ormituss/" style="color:white;">Instagram</a>
-            <a href="www.ormitus.com" style="color:white;"> Portfolio</a>
-           </div>
-           
+            <p> Ori Mor - Experimental Typography Class 2024</p>
+            <div class="links">
+                <a href="https://www.linkedin.com/in/ori-mor-3a751a1a7/" style="color:white;">LinkedIn</a>
+                <a href="https://www.instagram.com/ormituss/" style="color:white;">Instagram</a>
+                <a href="www.ormitus.com" style="color:white;"> Portfolio</a>
+            </div>
+
         </div>
     </div>
     <canvas id="canvas" width="600" height="600" style="display:none"></canvas>
-        
+
     <script src="code.js"></script>
-     
+
 </body>
 
 </html>

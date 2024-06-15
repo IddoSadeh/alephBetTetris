@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const fontUpload = document.getElementById('font-upload');
     const fontSelect = document.getElementById('font-select');
     const checkboxes = document.querySelectorAll('.pieces-checkbox input[type=checkbox]');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const closeWelcomeBtn = document.getElementById('close-welcome');
+    const helpButton = document.getElementById('help-button');
     let gridWidth = 12;
     let gridHeight = 12;
     let blockWidth = 50;
@@ -413,5 +416,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Initial grid drawing on page load
-    drawGrid();
+    welcomeScreen.style.display = 'block';
+    closeWelcomeBtn.addEventListener('click', () => {
+        welcomeScreen.style.display = 'none';
+        drawGrid();
+    });
+
+    helpButton.addEventListener('click', () => {
+        welcomeScreen.style.display = 'block';
+    });
 });
