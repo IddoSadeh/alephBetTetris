@@ -1,7 +1,7 @@
 html, body {
     margin: 0;
     padding: 0;
-    overflow-x: auto; /* Hide horizontal scroll */
+    overflow-x: hidden; /* Hide horizontal scroll */
 }
 body {
     background-color: black;
