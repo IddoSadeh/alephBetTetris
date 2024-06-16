@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function drawGrid() {
 
         ctx.lineWidth = 1;
-    
+
         for (let i = 0; i <= gridWidth; i++) {
             ctx.beginPath();
             ctx.moveTo(i * blockWidth, 0);
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacityInput.value / 10})`;
             ctx.stroke();
         }
-    
+
         for (let i = 0; i <= gridHeight; i++) {
             ctx.beginPath();
             ctx.moveTo(0, i * blockWidth);
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ctx.stroke();
         }
     }
-    
+
 
     function drawBlock(block, x, y) {
         const img = new Image();
@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     } else {
                         const canvas = document.getElementById('canvas');
                         canvas.style.display = 'block';
-                        const ctx = canvas.getContext('2d',{ willReadFrequently: true });
+                        const ctx = canvas.getContext('2d', { willReadFrequently: true });
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                         const blockSize = 600 / gridWidth;
@@ -339,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.warn('Invalid input: Only a single Hebrew character is allowed.');
         }
     });
-    fontSelect.addEventListener('input', populateCanvas); 
+    fontSelect.addEventListener('input', populateCanvas);
 
 
     saveBtn.addEventListener('click', function () {
@@ -349,15 +349,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const originalHeight = canvas.height / 0.1;
         tempCanvas.width = originalWidth;
         tempCanvas.height = originalHeight;
-        const tempCtx = tempCanvas.getContext('2d',{ willReadFrequently: true });
-        
+        const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+
         // Draw the high-resolution canvas onto the temporary canvas
         tempCtx.drawImage(canvas, 0, 0, originalWidth, originalHeight);
-    
+
         const format = exportFormat.value;
         const extension = format === 'jpeg' ? 'jpg' : format;
         const mimeType = `image/${format}`;
-    
+
         tempCanvas.toBlob(function (blob) {
             let link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -372,17 +372,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const reader = new FileReader();
             reader.onload = function (e) {
                 const fontData = e.target.result;
-                
+
                 try {
                     const font = opentype.parse(fontData);
-    
+
                     // Add the uploaded font to the dropdown menu and select it
                     const option = document.createElement('option');
                     option.value = URL.createObjectURL(new Blob([fontData], { type: 'font/ttf' }));
                     option.text = file.name;
                     fontSelect.add(option);
                     fontSelect.value = option.value;
-    
+
                     // Repopulate the canvas
                     const textValue = textInput.value.trim();
                     if (isValidHebrewCharacter(textValue)) {
@@ -402,7 +402,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert('No file selected');
         }
     });
-    
+
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', () => {
             clearTimeout(repopulateTimeout);
