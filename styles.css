@@ -53,6 +53,7 @@ u {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    
 }
 
 .input-control {
@@ -69,8 +70,6 @@ u {
 
 .dimension-control {
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
     height: 100%;
 }
 

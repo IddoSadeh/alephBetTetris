@@ -34,7 +34,7 @@
 
 
                             <div class="field-row-stacked">
-                                <label for="size">Size</label>
+                                <label for="size">Grid Density</label>
                                 <input type="range" id="size" name="size" min="12" max="124" value="12">
                             </div>
                             <div class="field-row-stacked">
@@ -42,6 +42,7 @@
                                 <input type="range" id="opacity" name="opacity" min="0" max="10" value="10">
 
                             </div>
+
                             <div class="field-row-stacked">
                                 <label for="text">Text</label>
                                 <input type="text" id="text" name="text">
@@ -79,8 +80,66 @@
                     </div>
                 </div>
 
+                <div class="dimension-control">
+                    
+                    <div class="window">
+                        <div class="window-body">
+
+
+                            <div class="field-row-stacked" style="padding-left: 83%;">
+                                <label for="y-dimension" style="padding-left: 20%;">Y</label>
+                                <div class="is-vertical">
+                                    <input type="range" id="y-dimension">
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <label for="x-dimension">X</label>
+                                <input type="range" id="x-dimension">
+                            </div>
+
+                            <div class="field-row-stacked">
+                                <label for="depth">Depth</label>
+                                <input type="range" id="depth">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="welcome-screen" class="window welcome-screen">
+                <div class="title-bar">
+                    <div class="title-bar-text">Welcome to Ormitus Tetris Typography Generator</div>
+                </div>
+                <div class="window-body">
+
+                    <div class="field-row-stacked">
+                        <p>Welcome! Use this tool to generate Tetris-style typography.</p>
+                        <p>Input a Hebrew letter in the textbox to the left to start.</p>
+                        <p>The canvas will automatically update as you make changes to the settings.</p>
+                        <p>Currently the app will only work for Hebrew fonts and single letters.</p>
+                        <button id="close-welcome">Close</button>
+                    </div>
+
+                </div>
+            </div>
+            <canvas id="tetris-canvas" width="600" height="600"></canvas>
+            <div class="controls-column2">
                 <div class="window">
                     <div class="window-body">
+                        <div class="field-row-stacked">
+                            <label for="saturation">Saturation</label>
+                            <input type="range" id="saturation" name="saturation" min="0" max="100" value="100">
+                        </div>
+                        <div class="field-row-stacked">
+                            <label for="hue">Hue</label>
+                            <input type="range" id="hue" name="hue" min="0" max="360" value="0">
+                        </div>
+                        <div class="field-row-stacked">
+                            <label for="luminance">Luminance</label>
+                            <input type="range" id="luminance" name="luminance" min="0" max="100" value="100">
+                        </div>
+                        <br>
                         <div class="pieces-checkbox">
 
                             <div class="field-row">
@@ -112,51 +171,11 @@
                                 <label for="turqoise"><img src="images/turqoise_piece.svg"> </label>
                             </div>
                         </div>
+
                     </div>
 
                 </div>
-            </div>
 
-            <div id="welcome-screen" class="window welcome-screen">
-                <div class="title-bar">
-                    <div class="title-bar-text">Welcome to Ormitus Tetris Typography Generator</div>
-                </div>
-                <div class="window-body">
-
-                    <div class="field-row-stacked">
-                        <p>Welcome! Use this tool to generate Tetris-style typography.</p>
-                        <p>Input a Hebrew letter in the textbox to the left to start.</p>
-                        <p>The canvas will automatically update as you make changes to the settings.</p>
-                        <p>Currently the app will only work for Hebrew fonts and single letters.</p>
-                        <button id="close-welcome">Close</button>
-                    </div>
-
-                </div>
-            </div>
-            <canvas id="tetris-canvas" width="600" height="600"></canvas>
-            <div class="controls-column2">
-                <div class="dimension-control">
-                    <div class="window">
-                        <div class="window-body">
-                            <div class="field-row-stacked" style="padding-left: 83%;">
-                                <label for="y-dimension" style="padding-left: 20%;">Y</label>
-                                <div class="is-vertical">
-                                    <input type="range" id="y-dimension">
-                                </div>
-                            </div>
-                            <div class="field-row">
-                                <label for="x-dimension">X</label>
-                                <input type="range" id="x-dimension">
-                            </div>
-
-                            <div class="field-row-stacked">
-                                <label for="depth">Depth</label>
-                                <input type="range" id="depth">
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
             </div>
         </div>
         <div class="footer" style="display:flex; justify-content: space-between;">

@@ -10,9 +10,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const fontUpload = document.getElementById('font-upload');
     const fontSelect = document.getElementById('font-select');
     const checkboxes = document.querySelectorAll('.pieces-checkbox input[type=checkbox]');
+    const pieceImages = document.querySelectorAll('.pieces-checkbox img');
     const welcomeScreen = document.getElementById('welcome-screen');
     const closeWelcomeBtn = document.getElementById('close-welcome');
     const helpButton = document.getElementById('help-button');
+    const saturationInput = document.getElementById('saturation');
+    const hueInput = document.getElementById('hue');
+    const luminanceInput = document.getElementById('luminance');
     let gridWidth = 12;
     let gridHeight = 12;
     let blockWidth = 50;
@@ -37,6 +41,26 @@ document.addEventListener("DOMContentLoaded", function () {
         canvas.style.borderColor = `rgba(255, 255, 255, ${opacity})`;
         drawGrid();
         return Promise.resolve();
+    }
+
+    function updateCanvasColorAdjustments() {
+        const saturationValue = saturationInput.value;
+        const hueValue = hueInput.value;
+        const luminanceValue = luminanceInput.value;
+
+        const filterValue = `
+            saturate(${saturationValue}%)
+            hue-rotate(${hueValue}deg)
+            brightness(${luminanceValue}%)
+        `;
+
+        // Apply filter to the canvas
+        canvas.style.filter = filterValue;
+
+        // Apply filter to the piece images
+        pieceImages.forEach(img => {
+            img.style.filter = filterValue;
+        });
     }
 
     function resetGridAndAreas() {
@@ -72,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacityInput.value / 10})`;
             ctx.stroke();
         }
+        updateCanvasColorAdjustments();
     }
 
 
@@ -80,6 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
         img.src = block.svgUrl;
         img.onload = () => {
             ctx.drawImage(img, x * blockWidth, y * blockWidth, blockWidth, blockWidth);
+            updateCanvasColorAdjustments();
         };
     }
 
@@ -329,6 +355,10 @@ document.addEventListener("DOMContentLoaded", function () {
             updateCanvasSize();
         }
     });
+
+    saturationInput.addEventListener('input', updateCanvasColorAdjustments);
+    hueInput.addEventListener('input', updateCanvasColorAdjustments);
+    luminanceInput.addEventListener('input', updateCanvasColorAdjustments);
 
     opacityInput.addEventListener('input', updateCanvasOpacity);
     textInput.addEventListener('input', () => {
