@@ -1,3 +1,4 @@
+export const container = document.getElementById('container');
 export const canvas = document.getElementById('tetris-canvas');
 export const ctx = canvas.getContext('2d', { willReadFrequently: true });
 export const sizeInput = document.getElementById('size');

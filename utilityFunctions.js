@@ -1,5 +1,67 @@
-import * as vars from './variables.js';
+
 import { updateCanvasColorAdjustments, updateCanvasOpacity, updateCanvasSize } from './canvasModule.js';
+import * as vars from './variables.js';
+import { scene } from './threeSetup.js';
+import * as THREE from 'three';
+
+export function drawCube(block, x, y, z = 0) {
+    const geometry = new THREE.BoxGeometry(vars.state.blockWidth, vars.state.blockWidth, vars.state.blockWidth);
+    const loader = new THREE.TextureLoader();
+
+    loader.load(block.svgUrl, (texture) => {
+        const materials = [
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture }),
+            new THREE.MeshBasicMaterial({ map: texture })
+        ];
+
+        const cube = new THREE.Mesh(geometry, materials);
+
+        // Calculate the center position of the grid
+        const gridCenterX = (vars.state.gridWidth * vars.state.blockWidth) / 2;
+        const gridCenterY = (vars.state.gridHeight * vars.state.blockWidth) / 2;
+
+        // Set cube position relative to the center of the grid
+        cube.position.set(
+            (x * vars.state.blockWidth) - gridCenterX + (vars.state.blockWidth / 2),
+            -(y * vars.state.blockWidth) + gridCenterY - (vars.state.blockWidth / 2),
+            z
+        );
+
+        scene.add(cube);
+        cube.userData.isTetrisCube = true; // Tag to identify Tetris cubes
+    });
+}
+
+export function clearCubes() {
+    return new Promise((resolve) => {
+        const objectsToRemove = [];
+        scene.traverse((object) => {
+            if (object.isMesh && object.userData.isTetrisCube) {
+                objectsToRemove.push(object);
+            }
+        });
+        objectsToRemove.forEach((object) => {
+            scene.remove(object);
+        });
+        resolve();
+    });
+}
+export function placeCube(block, x, y) {
+    for (let i = 0; i < block.matrix.length; i++) {
+        for (let j = 0; j < block.matrix[i].length; j++) {
+            if (block.matrix[i][j] === 1) {
+                vars.state.grid[y + i][x + j] = 1;
+                vars.state.allowedAreas[y + i][x + j] = 0;
+                drawCube(block, x + j, y + i);
+            }
+        }
+    }
+}
+
 
 export function isValidHebrewCharacter(input) {
     return /^[\u0590-\u05FF]$/.test(input);
@@ -28,6 +90,7 @@ export function getSelectedBlocks() {
 }
 
 export function resetGridAndAreas() {
+    clearCubes();
     vars.state.grid = Array.from(Array(vars.state.gridHeight), () => new Array(vars.state.gridWidth).fill(0));
     vars.state.allowedAreas = Array.from(Array(vars.state.gridHeight), () => new Array(vars.state.gridWidth).fill(1));
     return Promise.resolve();
@@ -59,6 +122,7 @@ export function tryToPlaceBlock(block, startX, startY) {
     for (let rotation = 0; rotation < 4; rotation++) {
         if (canPlaceBlock(block, startX, startY)) {
             placeBlock(block, startX, startY, rotationApplied);
+            placeCube(block,startX,startY)
             return true;
         }
         block.matrix = rotateMatrix(block.matrix);
@@ -223,30 +287,31 @@ export function populateCanvas() {
     const letterInput = vars.textInput.value.trim();
     const fontUrl = vars.fontSelect.value;
     let blocks = getSelectedBlocks();
-    updateCanvasSize().then(() => {
-        return updateCanvasOpacity();
-    }).then(() => {
-        return resetGridAndAreas();
-    }).then(() => {
-        return rasterize(letterInput, fontUrl);
-    }).then(() => {
-        let placementsPossible;
-        do {
-            placementsPossible = false;
-            for (let y = 0; y < vars.state.gridHeight; y++) {
-                for (let x = 0; x < vars.state.gridWidth; x++) {
-                    if (vars.state.grid[y][x] === 0 && vars.state.allowedAreas[y][x] === 1) {
-                        const block = blocks[Math.floor(Math.random() * blocks.length)];
-                        if (tryToPlaceBlock({ ...block }, x, y)) {
-                            placementsPossible = true;
+
+    updateCanvasSize()
+        .then(() => updateCanvasOpacity())
+        .then(() => clearCubes())  // Clear all existing cubes
+        .then(() => resetGridAndAreas())
+        .then(() => rasterize(letterInput, fontUrl))
+        .then(() => {
+            let placementsPossible;
+            do {
+                placementsPossible = false;
+                for (let y = 0; y < vars.state.gridHeight; y++) {
+                    for (let x = 0; x < vars.state.gridWidth; x++) {
+                        if (vars.state.grid[y][x] === 0 && vars.state.allowedAreas[y][x] === 1) {
+                            const block = blocks[Math.floor(Math.random() * blocks.length)];
+                            if (tryToPlaceBlock({ ...block }, x, y)) {
+                                placementsPossible = true;
+                            }
                         }
                     }
                 }
-            }
-        } while (placementsPossible);
-    }).catch(error => {
-        console.error('Failed to populate grid:', error);
-    });
+            } while (placementsPossible);
+        })
+        .catch(error => {
+            console.error('Failed to populate grid:', error);
+        });
 }
 
 export function rotateMatrix(matrix) {

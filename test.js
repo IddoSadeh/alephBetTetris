@@ -40,7 +40,7 @@ loader.load('images/red_block.svg', (texture) => {
     scene.add(cube);
 
     // Position the camera
-    camera.position.z = 5;
+    camera.position.z = 20;
 
     // Render loop
     function animate() {

@@ -92,3 +92,10 @@ u {
     z-index: 1000;
     display: none;
 }
+#container {
+    margin: auto;
+    width: 1000px;
+    height: 600px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    z-index: 1;
+}
