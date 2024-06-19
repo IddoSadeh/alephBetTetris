@@ -6,7 +6,7 @@ import * as THREE from 'three';
 
 export function drawCube(block, x, y, z = 0) {
     // Scale down the block width
-    const blockWidth = vars.state.blockWidth * 0.01;
+    const blockWidth = vars.state.blockWidth * 0.001;
     const geometry = new THREE.BoxGeometry(blockWidth, blockWidth, blockWidth);
     const loader = new THREE.TextureLoader();
 

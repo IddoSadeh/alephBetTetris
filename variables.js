@@ -16,6 +16,9 @@ export const helpButton = document.getElementById('help-button');
 export const saturationInput = document.getElementById('saturation');
 export const hueInput = document.getElementById('hue');
 export const luminanceInput = document.getElementById('luminance');
+export const toggleButton = document.getElementById('toggle-view');
+export const tetrisCanvas = document.getElementById('tetris-canvas');
+export const threeContainer = document.getElementById('three-container');
 export let state = {
     gridWidth: 12,
     gridHeight: 12,

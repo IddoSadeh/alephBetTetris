@@ -13,8 +13,17 @@ export function addEventListeners() {
         }
     });
 
-
-
+    vars.toggleButton.addEventListener('click', function () {
+        if (vars.threeContainer.style.display === 'none' || vars.threeContainer.style.display === '') {
+            vars.threeContainer.style.display = 'block';
+            vars.tetrisCanvas.style.display = 'none';
+            vars.toggleButton.textContent = 'Switch to 2D View';
+        } else {
+            vars.threeContainer.style.display = 'none';
+            vars.tetrisCanvas.style.display = 'block';
+            vars.toggleButton.textContent = 'Switch to 3D View';
+        }
+    });
     
     vars.saturationInput.addEventListener('input', handleColorAdjustments);
     vars.hueInput.addEventListener('input', handleColorAdjustments);
@@ -108,4 +117,5 @@ export function addEventListeners() {
     vars.helpButton.addEventListener('click', () => {
         vars.welcomeScreen.style.display = 'block';
     });
+
 }

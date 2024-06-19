@@ -30,9 +30,15 @@
             <div class="controls-column1">
                 <div class="window">
                     <div class="window-body">
+
                         <div class="input-control">
-
-
+                            
+                            <div class="field-row-stacked">
+                                <div id="toggle-container">
+                                    <button id="toggle-view">Switch to 3D View</button>
+                                </div>
+    
+                            </div>
                             <div class="field-row-stacked">
                                 <label for="size">Grid Density</label>
                                 <input type="range" id="size" name="size" min="12" max="124" value="12">
@@ -123,7 +129,13 @@
 
                 </div>
             </div>
-            <canvas id="tetris-canvas" width="600" height="600"></canvas>
+
+
+            <div id="tetris-grid-container">
+                <canvas id="tetris-canvas" width="600" height="600"></canvas>
+                <div id="three-container" style="width: 600px; height: 600px;"></div>
+            </div>
+            
             <div class="controls-column2">
                 <div class="window">
                     <div class="window-body">
@@ -190,7 +202,7 @@
     </div>
     <canvas id="canvas" width="600" height="600" style="display:none"></canvas>
 
-    <div id="container"></div>
+
 
 </body>
 

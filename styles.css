@@ -73,11 +73,7 @@ u {
     height: 100%;
 }
 
-#tetris-canvas {
-    width: 600px;
-    height: 600px;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-}
+
 
 .footer {
     padding: 0 20px 0;
@@ -92,12 +88,23 @@ u {
     z-index: 1000;
     display: none;
 }
-#container {
-    position: absolute;
-    top: 30%;
-    left: 0;
+#tetris-grid-container {
+    position: relative;
+    width: 600px;
+    height: 600px;
+}
+
+#tetris-canvas, #three-container {
     width: 600px;
     height: 600px;
     border: 2px solid rgba(255, 255, 255, 0.8);
-    z-index: 1;
+
+}
+
+#three-container {
+    display: none; /* Initially hidden */
+}
+
+#toggle-container {
+    margin-bottom: 10px;
 }
