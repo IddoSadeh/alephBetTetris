@@ -5,7 +5,9 @@ import { scene } from './threeSetup.js';
 import * as THREE from 'three';
 
 export function drawCube(block, x, y, z = 0) {
-    const geometry = new THREE.BoxGeometry(vars.state.blockWidth, vars.state.blockWidth, vars.state.blockWidth);
+    // Scale down the block width
+    const blockWidth = vars.state.blockWidth * 0.01;
+    const geometry = new THREE.BoxGeometry(blockWidth, blockWidth, blockWidth);
     const loader = new THREE.TextureLoader();
 
     loader.load(block.svgUrl, (texture) => {
@@ -21,13 +23,13 @@ export function drawCube(block, x, y, z = 0) {
         const cube = new THREE.Mesh(geometry, materials);
 
         // Calculate the center position of the grid
-        const gridCenterX = (vars.state.gridWidth * vars.state.blockWidth) / 2;
-        const gridCenterY = (vars.state.gridHeight * vars.state.blockWidth) / 2;
+        const gridCenterX = (vars.state.gridWidth * blockWidth) / 2;
+        const gridCenterY = (vars.state.gridHeight * blockWidth) / 2;
 
         // Set cube position relative to the center of the grid
         cube.position.set(
-            (x * vars.state.blockWidth) - gridCenterX + (vars.state.blockWidth / 2),
-            -(y * vars.state.blockWidth) + gridCenterY - (vars.state.blockWidth / 2),
+            (x * blockWidth) - gridCenterX + (blockWidth / 2),
+            -(y * blockWidth) + gridCenterY - (blockWidth / 2),
             z
         );
 
@@ -35,6 +37,34 @@ export function drawCube(block, x, y, z = 0) {
         cube.userData.isTetrisCube = true; // Tag to identify Tetris cubes
     });
 }
+
+export function clearCubes() {
+    return new Promise((resolve) => {
+        const objectsToRemove = [];
+        scene.traverse((object) => {
+            if (object.isMesh && object.userData.isTetrisCube) {
+                objectsToRemove.push(object);
+            }
+        });
+        objectsToRemove.forEach((object) => {
+            scene.remove(object);
+        });
+        resolve();
+    });
+}
+
+export function placeCube(block, x, y) {
+    for (let i = 0; i < block.matrix.length; i++) {
+        for (let j = 0; j < block.matrix[i].length; j++) {
+            if (block.matrix[i][j] === 1) {
+                vars.state.grid[y + i][x + j] = 1;
+                vars.state.allowedAreas[y + i][x + j] = 0;
+                drawCube(block, x + j, y + i);
+            }
+        }
+    }
+}
+
 
 export function updateThreeJSColorAdjustments() {
     const saturationValue = vars.saturationInput.value;
@@ -52,50 +82,6 @@ export function updateThreeJSColorAdjustments() {
 }
 
 
-
-// export function updateThreeJSColorAdjustments() {
-//     const hueOffset = vars.hueInput.value / 360; // Convert degrees to 0-1 range
-//     const saturationOffset = (vars.saturationInput.value / 100) - 0.5; // Convert percentage to range centered around 0
-//     const luminanceOffset = (vars.luminanceInput.value / 100) - 0.5; // Convert percentage to range centered around 0
-
-//     scene.traverse((object) => {
-//         if (object.isMesh && object.userData.isTetrisCube) {
-//             object.material.forEach(material => {
-//                 material.color.offsetHSL(hueOffset, saturationOffset, luminanceOffset);
-//                 material.needsUpdate = true; // Ensure the material updates
-//             });
-//         }
-//     });
-// }
-
-
-
-
-export function clearCubes() {
-    return new Promise((resolve) => {
-        const objectsToRemove = [];
-        scene.traverse((object) => {
-            if (object.isMesh && object.userData.isTetrisCube) {
-                objectsToRemove.push(object);
-            }
-        });
-        objectsToRemove.forEach((object) => {
-            scene.remove(object);
-        });
-        resolve();
-    });
-}
-export function placeCube(block, x, y) {
-    for (let i = 0; i < block.matrix.length; i++) {
-        for (let j = 0; j < block.matrix[i].length; j++) {
-            if (block.matrix[i][j] === 1) {
-                vars.state.grid[y + i][x + j] = 1;
-                vars.state.allowedAreas[y + i][x + j] = 0;
-                drawCube(block, x + j, y + i);
-            }
-        }
-    }
-}
 
 
 export function isValidHebrewCharacter(input) {

@@ -20,14 +20,14 @@ export function initThreeJS() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
-    controls.minDistance = 2;
-    controls.maxDistance = 10000;
+    controls.minDistance = 1;
+    controls.maxDistance = 100;
 
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(5, 5, 5).normalize();
     scene.add(light);
 
-    camera.position.z = 1000; // Adjust the camera position to zoom out
+    camera.position.z = 10; // Adjust the camera position to zoom out
 
     window.addEventListener('resize', () => {
         const containerWidth = container.clientWidth;
