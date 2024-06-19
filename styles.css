@@ -82,9 +82,8 @@ u {
 
 .welcome-screen {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+
+    transform: translate(34%, 50%);
     z-index: 1000;
     display: none;
 }
@@ -92,6 +91,7 @@ u {
     position: relative;
     width: 600px;
     height: 600px;
+    margin: 0 auto;
 }
 
 #tetris-canvas, #three-container {
