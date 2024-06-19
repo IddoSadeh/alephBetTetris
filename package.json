@@ -1,0 +1,21 @@
+{
+  "name": "alephbettetris",
+  "version": "1.0.0",
+  "description": "This project is a Tetris-style typography generator created for my friend Ori Mor's Experimental Typography Class of 2024. The tool allows users to input a Hebrew letter and generate a Tetris block representation of the letter using custom or uploaded fonts.",
+  "main": "code.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "deploy": "gh-pages -d dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gh-pages": "^6.1.1",
+    "three": "^0.165.0"
+  },
+  "devDependencies": {
+    "vite": "^5.3.1"
+  }
+}

@@ -3,67 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js Human Figure</title>
+    <title>3D Tetris Block</title>
     <style>
         body { margin: 0; }
         canvas { display: block; }
     </style>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script>
-        let scene, camera, renderer, controls;
-
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xeeeeee);
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 1.5, 3);
-
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
-
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.update();
-
-            const light = new THREE.DirectionalLight(0xffffff, 1);
-            light.position.set(0, 1, 1).normalize();
-            scene.add(light);
-
-            const loader = new THREE.GLTFLoader();
-            loader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb', function (gltf) {
-    gltf.scene.traverse(function (child) {
-        if (child.isMesh) {
-            if (child.name.includes('Hair')) {  // Assuming the hair mesh is named appropriately
-                child.material.color.set(0x333333); // Set the color to a hair color (dark gray)
-            } else {
-                child.material.color.set(0xffcc99); // Set the color to a human skin tone
-            }
-        }
-    });
-    scene.add(gltf.scene);
-    animate();
-});
-
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        window.addEventListener('resize', function () {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        init();
-    </script>
+    <div id="container"></div>
+    <script type="module" src="./test.js"></script>
 </body>
 </html>
