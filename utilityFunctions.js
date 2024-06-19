@@ -54,12 +54,15 @@ export function clearCubes() {
 }
 
 export function placeCube(block, x, y) {
-    for (let i = 0; i < block.matrix.length; i++) {
-        for (let j = 0; j < block.matrix[i].length; j++) {
-            if (block.matrix[i][j] === 1) {
-                vars.state.grid[y + i][x + j] = 1;
-                vars.state.allowedAreas[y + i][x + j] = 0;
-                drawCube(block, x + j, y + i);
+    const layers = parseInt(vars.layerSlider.value, 10); // Get the number of layers from the slider
+    for (let layer = 0; layer < layers; layer++) {
+        for (let i = 0; i < block.matrix.length; i++) {
+            for (let j = 0; j < block.matrix[i].length; j++) {
+                if (block.matrix[i][j] === 1) {
+                    vars.state.grid[y + i][x + j] = 1;
+                    vars.state.allowedAreas[y + i][x + j] = 0;
+                    drawCube(block, x + j, y + i, layer * vars.state.blockWidth*0.001);
+                }
             }
         }
     }

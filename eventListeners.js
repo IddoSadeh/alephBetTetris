@@ -24,6 +24,9 @@ export function addEventListeners() {
             vars.toggleButton.textContent = 'Switch to 3D View';
         }
     });
+    vars.layerSlider.addEventListener('input', function () {
+        utils.populateCanvas(); // Redraw the cubes when the slider value changes
+    });
     
     vars.saturationInput.addEventListener('input', handleColorAdjustments);
     vars.hueInput.addEventListener('input', handleColorAdjustments);

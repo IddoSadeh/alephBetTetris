@@ -19,6 +19,7 @@ export const luminanceInput = document.getElementById('luminance');
 export const toggleButton = document.getElementById('toggle-view');
 export const tetrisCanvas = document.getElementById('tetris-canvas');
 export const threeContainer = document.getElementById('three-container');
+export const layerSlider = document.getElementById('layer-slider');
 export let state = {
     gridWidth: 12,
     gridHeight: 12,
