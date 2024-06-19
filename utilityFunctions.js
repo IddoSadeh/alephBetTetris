@@ -88,8 +88,10 @@ export function updateThreeJSColorAdjustments() {
 
 
 export function isValidHebrewCharacter(input) {
-    return /^[\u0590-\u05FF]$/.test(input);
+    // Regular expression for Hebrew letters, numbers, and common punctuation/special characters on a Hebrew keyboard
+    return /^[\u0590-\u05FF0-9\s\.,!?;:'"\(\)\[\]{}<>@#\$%\^&\*\-_=+\|\\\/~`]$/.test(input);
 }
+
 
 export function getSelectedBlocks() {
     const selectedBlocks = [];
