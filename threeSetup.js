@@ -12,9 +12,10 @@ export function initThreeJS() {
     const containerWidth = 600;
     const containerHeight = 600;
     console.log('Container dimensions:', containerWidth, containerHeight);
-    renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true });
+    renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, alpha: true });
     renderer.setSize(containerWidth, containerHeight);
     renderer.domElement.id = 'three-canvas';  // Give the canvas an ID
+    renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
     controls = new OrbitControls(camera, renderer.domElement);
