@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "This project is a Tetris-style typography generator created for my friend Ori Mor's Experimental Typography Class of 2024. The tool allows users to input a Hebrew letter and generate a Tetris block representation of the letter using custom or uploaded fonts.",
   "main": "code.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "gh-pages": "^6.1.1",
-    "vite": "^5.3.1"
+    "vite": "^5.3.1",
+    "vite-plugin-static-copy": "^0.9.0"
   }
 }
