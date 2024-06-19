@@ -3,7 +3,6 @@ import { updateCanvasColorAdjustments, updateCanvasOpacity, updateCanvasSize } f
 import * as vars from './variables.js';
 import { scene } from './threeSetup.js';
 import * as THREE from 'three';
-import { createCustomMaterial } from './shaderUtils.js';
 
 export function drawCube(block, x, y, z = 0) {
     const geometry = new THREE.BoxGeometry(vars.state.blockWidth, vars.state.blockWidth, vars.state.blockWidth);
@@ -11,16 +10,16 @@ export function drawCube(block, x, y, z = 0) {
 
     loader.load(block.svgUrl, (texture) => {
         const materials = [
-            new THREE.MeshBasicMaterial({ map: texture }),
-            new THREE.MeshBasicMaterial({ map: texture }),
-            new THREE.MeshBasicMaterial({ map: texture }),
-            new THREE.MeshBasicMaterial({ map: texture }),
-            new THREE.MeshBasicMaterial({ map: texture }),
-            new THREE.MeshBasicMaterial({ map: texture })
+            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
+            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
+            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
+            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
+            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
+            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff })
         ];
-    
+
         const cube = new THREE.Mesh(geometry, materials);
-        updateThreeJSColorAdjustments()
+
         // Calculate the center position of the grid
         const gridCenterX = (vars.state.gridWidth * vars.state.blockWidth) / 2;
         const gridCenterY = (vars.state.gridHeight * vars.state.blockWidth) / 2;
@@ -38,19 +37,38 @@ export function drawCube(block, x, y, z = 0) {
 }
 
 export function updateThreeJSColorAdjustments() {
-    console.log("here");
-    const saturationValue = vars.saturationInput.value / 100;
-    const hueValue = vars.hueInput.value / 360;
-    const luminanceValue = vars.luminanceInput.value / 100;
+    const saturationValue = vars.saturationInput.value;
+    const hueValue = vars.hueInput.value;
+    const luminanceValue = vars.luminanceInput.value;
 
-    scene.traverse((object) => {
-        if (object.isMesh && object.userData.isTetrisCube) {
-            object.material.forEach(material => {
-                material.color.setHSL(hueValue, saturationValue, luminanceValue);
-            });
-        }
-    });
+    const filterValue = `
+        saturate(${saturationValue}%)
+        hue-rotate(${hueValue}deg)
+        brightness(${luminanceValue}%)
+    `;
+
+    const canvas = document.getElementById('three-canvas');
+    canvas.style.filter = filterValue;
 }
+
+
+
+// export function updateThreeJSColorAdjustments() {
+//     const hueOffset = vars.hueInput.value / 360; // Convert degrees to 0-1 range
+//     const saturationOffset = (vars.saturationInput.value / 100) - 0.5; // Convert percentage to range centered around 0
+//     const luminanceOffset = (vars.luminanceInput.value / 100) - 0.5; // Convert percentage to range centered around 0
+
+//     scene.traverse((object) => {
+//         if (object.isMesh && object.userData.isTetrisCube) {
+//             object.material.forEach(material => {
+//                 material.color.offsetHSL(hueOffset, saturationOffset, luminanceOffset);
+//                 material.needsUpdate = true; // Ensure the material updates
+//             });
+//         }
+//     });
+// }
+
+
 
 
 export function clearCubes() {
@@ -307,7 +325,7 @@ export function populateCanvas() {
 
     updateCanvasSize()
         .then(() => updateCanvasOpacity())
-        .then(() => clearCubes())  // Clear all existing cubes
+        .then(() => clearCubes()) 
         .then(() => resetGridAndAreas())
         .then(() => rasterize(letterInput, fontUrl))
         .then(() => {
