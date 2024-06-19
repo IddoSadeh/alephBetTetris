@@ -1,7 +1,8 @@
 import * as vars from './variables.js';
 import * as utils from './utilityFunctions.js';
 import { handleColorAdjustments, updateCanvasOpacity, updateCanvasSize, drawGrid } from './canvasModule.js';
-
+import { renderer, scene } from './threeSetup.js';
+import { OBJExporter } from 'three/examples/jsm/exporters/OBJExporter.js';
 
 export function addEventListeners() {
     vars.sizeInput.addEventListener('input', () => {
@@ -44,25 +45,46 @@ export function addEventListeners() {
     vars.fontSelect.addEventListener('input', utils.populateCanvas);
 
     vars.saveBtn.addEventListener('click', function () {
-        const tempCanvas = document.createElement('canvas');
-        const originalWidth = vars.canvas.width / 0.1;
-        const originalHeight = vars.canvas.height / 0.1;
-        tempCanvas.width = originalWidth;
-        tempCanvas.height = originalHeight;
-        const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
-
-        tempCtx.drawImage(vars.canvas, 0, 0, originalWidth, originalHeight);
-
         const format = vars.exportFormat.value;
         const extension = format === 'jpeg' ? 'jpg' : format;
         const mimeType = `image/${format}`;
 
-        tempCanvas.toBlob(function (blob) {
-            let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `grid-image.${extension}`;
-            link.click();
-        }, mimeType);
+        if (vars.threeContainer.style.display === 'block') {
+            if (extension === 'png' || extension === 'jpg') {
+                // Save 3D scene as PNG or JPEG
+                const dataUrl = renderer.domElement.toDataURL(mimeType);
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `3d-grid-image.${extension}`;
+                link.click();
+            } else if (extension === 'obj') {
+                // Save 3D scene as OBJ
+                const exporter = new OBJExporter();
+                const objData = exporter.parse(scene);
+                const blob = new Blob([objData], { type: 'text/plain' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = '3d-grid-model.obj';
+                link.click();
+            }
+        } else {
+            // Save 2D canvas
+            const tempCanvas = document.createElement('canvas');
+            const originalWidth = vars.tetrisCanvas.width / 0.1;
+            const originalHeight = vars.tetrisCanvas.height / 0.1;
+            tempCanvas.width = originalWidth;
+            tempCanvas.height = originalHeight;
+            const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+
+            tempCtx.drawImage(vars.tetrisCanvas, 0, 0, originalWidth, originalHeight);
+
+            tempCanvas.toBlob(function (blob) {
+                let link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `grid-image.${extension}`;
+                link.click();
+            }, mimeType);
+        }
     });
 
     vars.fontUpload.addEventListener('change', function (event) {

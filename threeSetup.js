@@ -12,7 +12,7 @@ export function initThreeJS() {
     const containerWidth = 600;
     const containerHeight = 600;
     console.log('Container dimensions:', containerWidth, containerHeight);
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true });
     renderer.setSize(containerWidth, containerHeight);
     renderer.domElement.id = 'three-canvas';  // Give the canvas an ID
     container.appendChild(renderer.domElement);
