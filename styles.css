@@ -115,3 +115,7 @@ u {
 #toggle-container {
     margin-bottom: 10px;
 }
+
+#threed-helper{
+    display: none;
+}

@@ -13,13 +13,16 @@ export function addEventListeners() {
             updateCanvasSize();
         }
     });
-
     vars.toggleButton.addEventListener('click', function () {
         if (vars.threeContainer.style.display === 'none' || vars.threeContainer.style.display === '') {
+            vars.opacityHelper.style.display = "none";
+            vars.threedHelper.style.display = "block";
             vars.threeContainer.style.display = 'block';
             vars.tetrisCanvas.style.display = 'none';
             vars.toggleButton.textContent = 'Switch to 2D View';
         } else {
+            vars.opacityHelper.style.display = "block";
+            vars.threedHelper.style.display = "none";
             vars.threeContainer.style.display = 'none';
             vars.tetrisCanvas.style.display = 'block';
             vars.toggleButton.textContent = 'Switch to 3D View';

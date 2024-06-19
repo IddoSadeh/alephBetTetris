@@ -20,6 +20,8 @@ export const toggleButton = document.getElementById('toggle-view');
 export const tetrisCanvas = document.getElementById('tetris-canvas');
 export const threeContainer = document.getElementById('three-container');
 export const layerSlider = document.getElementById('layer-slider');
+export const opacityHelper = document.getElementById('opacity-helper');
+export const threedHelper = document.getElementById('threed-helper');
 export let state = {
     gridWidth: 12,
     gridHeight: 12,
