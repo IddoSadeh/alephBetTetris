@@ -1,4 +1,5 @@
 import { ctx, sizeInput, opacityInput, pieceImages, saturationInput, hueInput, luminanceInput, canvas, state } from './variables.js';
+import { updateThreeJSColorAdjustments } from './utilityFunctions.js';
 
 
 export function updateCanvasSize() {
@@ -21,6 +22,14 @@ export function updateCanvasOpacity() {
     canvas.style.borderColor = `rgba(255, 255, 255, ${opacity})`;
     drawGrid();
     return Promise.resolve();
+}
+
+
+
+
+export function handleColorAdjustments() {
+    updateCanvasColorAdjustments();
+    updateThreeJSColorAdjustments();
 }
 
 export function updateCanvasColorAdjustments() {

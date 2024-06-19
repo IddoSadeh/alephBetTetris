@@ -3,6 +3,7 @@ import { updateCanvasColorAdjustments, updateCanvasOpacity, updateCanvasSize } f
 import * as vars from './variables.js';
 import { scene } from './threeSetup.js';
 import * as THREE from 'three';
+import { createCustomMaterial } from './shaderUtils.js';
 
 export function drawCube(block, x, y, z = 0) {
     const geometry = new THREE.BoxGeometry(vars.state.blockWidth, vars.state.blockWidth, vars.state.blockWidth);
@@ -17,9 +18,9 @@ export function drawCube(block, x, y, z = 0) {
             new THREE.MeshBasicMaterial({ map: texture }),
             new THREE.MeshBasicMaterial({ map: texture })
         ];
-
+    
         const cube = new THREE.Mesh(geometry, materials);
-
+        updateThreeJSColorAdjustments()
         // Calculate the center position of the grid
         const gridCenterX = (vars.state.gridWidth * vars.state.blockWidth) / 2;
         const gridCenterY = (vars.state.gridHeight * vars.state.blockWidth) / 2;
@@ -35,6 +36,22 @@ export function drawCube(block, x, y, z = 0) {
         cube.userData.isTetrisCube = true; // Tag to identify Tetris cubes
     });
 }
+
+export function updateThreeJSColorAdjustments() {
+    console.log("here");
+    const saturationValue = vars.saturationInput.value / 100;
+    const hueValue = vars.hueInput.value / 360;
+    const luminanceValue = vars.luminanceInput.value / 100;
+
+    scene.traverse((object) => {
+        if (object.isMesh && object.userData.isTetrisCube) {
+            object.material.forEach(material => {
+                material.color.setHSL(hueValue, saturationValue, luminanceValue);
+            });
+        }
+    });
+}
+
 
 export function clearCubes() {
     return new Promise((resolve) => {

@@ -1,6 +1,7 @@
 import * as vars from './variables.js';
 import * as utils from './utilityFunctions.js';
-import { updateCanvasColorAdjustments, updateCanvasOpacity, updateCanvasSize, drawGrid } from './canvasModule.js';
+import { handleColorAdjustments, updateCanvasOpacity, updateCanvasSize, drawGrid } from './canvasModule.js';
+
 
 export function addEventListeners() {
     vars.sizeInput.addEventListener('input', () => {
@@ -12,9 +13,12 @@ export function addEventListeners() {
         }
     });
 
-    vars.saturationInput.addEventListener('input', updateCanvasColorAdjustments);
-    vars.hueInput.addEventListener('input', updateCanvasColorAdjustments);
-    vars.luminanceInput.addEventListener('input', updateCanvasColorAdjustments);
+
+
+    
+    vars.saturationInput.addEventListener('input', handleColorAdjustments);
+    vars.hueInput.addEventListener('input', handleColorAdjustments);
+    vars.luminanceInput.addEventListener('input', handleColorAdjustments)
 
     vars.opacityInput.addEventListener('input', updateCanvasOpacity);
     vars.textInput.addEventListener('input', () => {
@@ -95,6 +99,7 @@ export function addEventListeners() {
         });
     });
 
+    vars.welcomeScreen.style.display = 'block';
     vars.closeWelcomeBtn.addEventListener('click', () => {
         vars.welcomeScreen.style.display = 'none';
         drawGrid();
