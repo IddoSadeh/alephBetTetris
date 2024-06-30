@@ -217,7 +217,7 @@ export function rasterize(text, fontUrl) {
                     reject(err);
                 } else {
                     const canvas = document.getElementById('canvas');
-                    canvas.style.display = 'block';
+
                     const ctx = canvas.getContext('2d', { willReadFrequently: true });
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
