@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
-  base: '/ALEPHBETTETRIS/', // Replace with your GitHub repo name
+  base: '/alephBetTetris/', // Replace with your GitHub repo name
   plugins: [
     viteStaticCopy({
       targets: [
