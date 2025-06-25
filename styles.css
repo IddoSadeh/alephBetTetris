@@ -1,0 +1,121 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Hide horizontal scroll */
+}
+body {
+    background-color: black;
+    color: white;
+    margin: 0;  
+}
+
+.window-custom {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+}
+
+.title-bar {
+    background:linear-gradient(90deg,#00007B,#1085D2);
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.title-bar-controls {
+    display: flex;
+}
+
+.tab-bar {
+    background-color: #c0c0c0;
+    padding: 5px 0;
+}
+
+u {
+    color: black;
+    padding: 5px;
+}
+
+.window-body-custom {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    flex-grow: 1; 
+    background-color: black;
+    color: black;
+    margin: 0;
+}
+
+.controls-column1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 15%;
+}
+
+.controls-column2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 15%;
+}
+
+.input-control {
+    background-color: #c0c0c0;
+    display: flex;
+    flex-direction: column;
+}
+
+.pieces-checkbox {
+    background-color: #c0c0c0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dimension-control {
+    display: flex;
+    height: 100%;
+}
+
+
+
+.footer {
+    padding: 0 20px 0;
+}
+
+
+.welcome-screen {
+    position: absolute;
+
+    transform: translate(34%, 50%);
+    z-index: 1000;
+    display: none;
+}
+#tetris-grid-container {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    margin: 0 auto;
+}
+
+#tetris-canvas, #three-container {
+    width: 600px;
+    height: 600px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+
+}
+
+#three-container {
+    display: none; /* Initially hidden */
+}
+
+#toggle-container {
+    margin-bottom: 10px;
+}
+
+#threed-helper{
+    display: none;
+}
