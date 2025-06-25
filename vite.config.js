@@ -1,20 +1,8 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
   base: '/alephBetTetris/', // Replace with your GitHub repo name
-  plugins: [
-    viteStaticCopy({
-      targets: [
-        { src: 'fonts/**/*', dest: 'fonts' },
-        { src: 'images/**/*', dest: 'images' },
-        { src: 'icon/**/*', dest: 'icon' },
-        { src: '98.css', dest: '.' },
-        { src: 'styles.css', dest: '.' }
-      ]
-    })
-  ],
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
