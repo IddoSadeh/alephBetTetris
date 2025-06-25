@@ -8,7 +8,7 @@ import { handleMobileResize } from './utilityFunctions.js';
 export function addEventListeners() {
     vars.sizeInput.addEventListener('input', () => {
         const textValue = vars.textInput.value.trim();
-        if (utils.isValidHebrewCharacter(textValue)) {
+        if (utils.isValidCharacter(textValue)) {
             utils.populateCanvas();
         } else {
             updateCanvasSize();
@@ -50,7 +50,7 @@ export function addEventListeners() {
                 handleMobileResize();
                 // Redraw if there's content
                 const textValue = vars.textInput.value.trim();
-                if (utils.isValidHebrewCharacter(textValue)) {
+                if (utils.isValidCharacter(textValue)) {
                     utils.populateCanvas();
                 } else {
                     drawGrid();
@@ -62,7 +62,7 @@ export function addEventListeners() {
             setTimeout(() => {
                 handleMobileResize();
                 const textValue = vars.textInput.value.trim();
-                if (utils.isValidHebrewCharacter(textValue)) {
+                if (utils.isValidCharacter(textValue)) {
                     utils.populateCanvas();
                 } else {
                     drawGrid();
@@ -86,7 +86,7 @@ export function addEventListeners() {
     vars.opacityInput.addEventListener('input', updateCanvasOpacity);
     vars.textInput.addEventListener('input', () => {
         const textValue = vars.textInput.value.trim();
-        if (utils.isValidHebrewCharacter(textValue)) {
+        if (utils.isValidCharacter(textValue)) {
             utils.populateCanvas();
         } else {
             console.warn('Invalid input: Only a single Hebrew character is allowed.');
@@ -153,7 +153,7 @@ export function addEventListeners() {
                     vars.fontSelect.value = option.value;
 
                     const textValue = vars.textInput.value.trim();
-                    if (utils.isValidHebrewCharacter(textValue)) {
+                    if (utils.isValidCharacter(textValue)) {
                         utils.populateCanvas();
                     } else {
                         console.warn('Invalid input: Only a single Hebrew character is allowed.');
@@ -176,7 +176,7 @@ export function addEventListeners() {
             clearTimeout(vars.state.repopulateTimeout);
             vars.state.repopulateTimeout = setTimeout(() => {
                 const textValue = vars.textInput.value.trim();
-                if (utils.isValidHebrewCharacter(textValue)) {
+                if (utils.isValidCharacter(textValue)) {
                     utils.populateCanvas();
                 }
             }, 1000);

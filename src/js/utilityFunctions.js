@@ -4,6 +4,19 @@ import * as vars from './variables.js';
 import { scene } from './threeSetup.js';
 import * as THREE from 'three';
 
+
+export function isValidCharacter(input) {
+  return Array.from(input).length === 1;
+}
+
+// Helper: load a font by URL via opentype.js
+function loadFont(url) {
+  return new Promise((resolve, reject) =>
+    opentype.load(url, (err, font) => (err ? reject(err) : resolve(font)))
+  );
+}
+
+
 export function drawCube(block, x, y, z = 0) {
     // Scale down the block width
     const blockWidth = vars.state.blockWidth * 0.001;
@@ -208,80 +221,104 @@ export function downscaleArray(originalArray, targetWidth, targetHeight) {
     return downscaledArray;
 }
 
-export function rasterize(text, fontUrl) {
-    return new Promise((resolve, reject) => {
-        if (text !== "") {
-            opentype.load(fontUrl, function (err, font) {
-                if (err) {
-                    alert('Font could not be loaded: ' + err);
-                    reject(err);
-                } else {
-                    const canvas = document.getElementById('canvas');
+export async function rasterize(text, fontUrl) {
+  const canvasEl = document.getElementById('canvas');
+  const ctx = canvasEl.getContext('2d', { willReadFrequently: true });
+  const W = canvasEl.width, H = canvasEl.height;
 
-                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // 0) Empty case: clear grid
+  if (!text) {
+    vars.state.allowedAreas = Array.from(
+      Array(vars.state.gridHeight),
+      () => new Array(vars.state.gridWidth).fill(1)
+    );
+    return;
+  }
 
-                    const blockSize = 600 / vars.state.gridWidth;
-                    let fontSize = 600;
+  // 1) Try loading & testing the OpenType font
+  let font, useNativeFallback = false;
+  try {
+    font = await loadFont(fontUrl);
+    // charToGlyphIndex === 0 means “.notdef” → missing glyph
+    if (font.charToGlyphIndex(text) === 0) {
+      throw new Error('missing-glyph');
+    }
+  } catch (err) {
+    console.warn(
+      `Could not use uploaded font for “${text}” → falling back to system font.`
+    );
+    useNativeFallback = true;
+  }
 
-                    const doesTextFit = (fontSize) => {
-                        const textPath = font.getPath(text, 0, 0, fontSize);
-                        const box = textPath.getBoundingBox();
-                        return (box.x2 - box.x1 <= canvas.width) && (box.y2 - box.y1 <= canvas.height);
-                    };
+  // 2) Clear canvas
+  ctx.clearRect(0, 0, W, H);
 
-                    while (fontSize > 0 && !doesTextFit(fontSize)) {
-                        fontSize -= 1;
-                    }
+  if (useNativeFallback) {
+    // ---- NATIVE fillText() FALLBACK PATH ----
+    // Centered text using browser’s font-family fallback:
+    const fontSize = W;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    // Use the uploaded font name first (in case it covers), then sans-serif
+    ctx.font = `${fontSize}px "${vars.state.uploadedFontName}", sans-serif`;
+    ctx.fillText(text, W / 2, H / 2);
 
-                    const textPath = font.getPath(text, 0, 0, fontSize);
-                    const box = textPath.getBoundingBox();
+  } else {
+    // ---- OPENTYPE PATH ----
+    // Find the maximum fontSize that fits the canvas:
+    let fontSize = W;
+    const fits = size => {
+      const p = font.getPath(text, 0, 0, size);
+      const b = p.getBoundingBox();
+      return b.x2 - b.x1 <= W && b.y2 - b.y1 <= H;
+    };
+    while (fontSize > 0 && !fits(fontSize)) fontSize--;
 
-                    const xOffset = (canvas.width - (box.x2 - box.x1)) / 2 - box.x1;
-                    const yOffset = (canvas.height - (box.y2 - box.y1)) / 2 - box.y1;
+    // Build and draw the path
+    const path = font.getPath(text, 0, 0, fontSize);
+    const b = path.getBoundingBox();
+    const xOff = (W - (b.x2 - b.x1)) / 2 - b.x1;
+    const yOff = (H - (b.y2 - b.y1)) / 2 - b.y1;
 
-                    ctx.beginPath();
-                    textPath.commands.forEach(function (cmd) {
-                        if (cmd.type === 'M') {
-                            ctx.moveTo(cmd.x + xOffset, cmd.y + yOffset);
-                        } else if (cmd.type === 'L') {
-                            ctx.lineTo(cmd.x + xOffset, cmd.y + yOffset);
-                        } else if (cmd.type === 'C') {
-                            ctx.bezierCurveTo(cmd.x1 + xOffset, cmd.y1 + yOffset, cmd.x2 + xOffset, cmd.y2 + yOffset, cmd.x + xOffset, cmd.y + yOffset);
-                        } else if (cmd.type === 'Q') {
-                            ctx.quadraticCurveTo(cmd.x1 + xOffset, cmd.y1 + yOffset, cmd.x + xOffset, cmd.y + yOffset);
-                        } else if (cmd.type === 'Z') {
-                            ctx.closePath();
-                        }
-                    });
-                    ctx.fill();
+    ctx.beginPath();
+    for (const c of path.commands) {
+      switch (c.type) {
+        case 'M': ctx.moveTo(c.x + xOff, c.y + yOff); break;
+        case 'L': ctx.lineTo(c.x + xOff, c.y + yOff); break;
+        case 'C':
+          ctx.bezierCurveTo(
+            c.x1 + xOff, c.y1 + yOff,
+            c.x2 + xOff, c.y2 + yOff,
+            c.x  + xOff, c.y  + yOff
+          ); break;
+        case 'Q':
+          ctx.quadraticCurveTo(
+            c.x1 + xOff, c.y1 + yOff,
+            c.x  + xOff, c.y  + yOff
+          ); break;
+        case 'Z': ctx.closePath(); break;
+      }
+    }
+    ctx.fill();
+  }
 
-                    setTimeout(() => {
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        const binaryArray = [];
+  // 3) Rasterize the canvas pixels into a binary grid
+  const img = ctx.getImageData(0, 0, W, H).data;
+  const binary = [];
+  for (let y = 0; y < H; y++) {
+    const row = [];
+    for (let x = 0; x < W; x++) {
+      const alpha = img[(y * W + x) * 4 + 3];
+      row.push(alpha > 128 ? 1 : 0);
+    }
+    binary.push(row);
+  }
 
-                        for (let y = 0; y < canvas.height; y++) {
-                            let row = [];
-                            for (let x = 0; x < canvas.width; x++) {
-                                const index = (y * canvas.width + x) * 4;
-                                const alpha = imageData.data[index + 3];
-                                row.push(alpha > 128 ? 1 : 0);
-                            }
-                            binaryArray.push(row);
-                        }
-
-                        canvas.style.display = 'none';
-                        vars.state.allowedAreas = moveContentToBottom(downscaleArray(binaryArray, vars.state.gridWidth, vars.state.gridHeight));
-
-                        resolve();
-                    }, 500);
-                }
-            });
-        } else {
-            vars.state.allowedAreas = Array.from(Array(vars.state.gridHeight), () => new Array(vars.state.gridWidth).fill(1));
-            resolve();
-        }
-    });
+  // 4) Downscale + bottom-align into your state
+  canvasEl.style.display = 'none';
+  vars.state.allowedAreas = moveContentToBottom(
+    downscaleArray(binary, vars.state.gridWidth, vars.state.gridHeight)
+  );
 }
 
 export function moveContentToBottom(array) {

@@ -90,7 +90,7 @@ u {
 .welcome-screen {
     position: absolute;
 
-    transform: translate(34%, 50%);
+    transform: translate(14%, 50%);
     z-index: 1000;
     display: none;
 }
