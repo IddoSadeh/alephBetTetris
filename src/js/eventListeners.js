@@ -3,6 +3,7 @@ import * as utils from './utilityFunctions.js';
 import { handleColorAdjustments, updateCanvasOpacity, updateCanvasSize, drawGrid } from './canvasModule.js';
 import { renderer, scene } from './threeSetup.js';
 import { OBJExporter } from 'three/examples/jsm/exporters/OBJExporter.js';
+import { handleMobileResize } from './utilityFunctions.js';
 
 export function addEventListeners() {
     vars.sizeInput.addEventListener('input', () => {
@@ -20,18 +21,64 @@ export function addEventListeners() {
             vars.threeContainer.style.display = 'block';
             vars.tetrisCanvas.style.display = 'none';
             vars.toggleButton.textContent = 'Switch to 2D View';
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    handleMobileResize();
+                }, 100);
+            }
         } else {
             vars.opacityHelper.style.display = "block";
             vars.threedHelper.style.display = "none";
             vars.threeContainer.style.display = 'none';
             vars.tetrisCanvas.style.display = 'block';
             vars.toggleButton.textContent = 'Switch to 3D View';
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    handleMobileResize();
+                    drawGrid();
+                }, 100);
+            }
         }
     });
+
+    if (window.innerWidth <= 768) {
+        let mobileResizeTimeout;
+
+        window.addEventListener('resize', () => {
+            clearTimeout(mobileResizeTimeout);
+            mobileResizeTimeout = setTimeout(() => {
+                handleMobileResize();
+                // Redraw if there's content
+                const textValue = vars.textInput.value.trim();
+                if (utils.isValidHebrewCharacter(textValue)) {
+                    utils.populateCanvas();
+                } else {
+                    drawGrid();
+                }
+            }, 250);
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                handleMobileResize();
+                const textValue = vars.textInput.value.trim();
+                if (utils.isValidHebrewCharacter(textValue)) {
+                    utils.populateCanvas();
+                } else {
+                    drawGrid();
+                }
+            }, 500);
+        });
+
+        // Initial mobile setup
+        setTimeout(() => {
+            handleMobileResize();
+        }, 100);
+    }
     vars.layerSlider.addEventListener('input', function () {
         utils.populateCanvas(); // Redraw the cubes when the slider value changes
     });
-    
+
     vars.saturationInput.addEventListener('input', handleColorAdjustments);
     vars.hueInput.addEventListener('input', handleColorAdjustments);
     vars.luminanceInput.addEventListener('input', handleColorAdjustments)

@@ -343,3 +343,87 @@ export function populateCanvas() {
 export function rotateMatrix(matrix) {
     return matrix[0].map((val, index) => matrix.map(row => row[index]).reverse());
 }
+// Add these functions to your existing src/js/utilityFunctions.js file
+
+export function getResponsiveCanvasSize() {
+    const container = document.getElementById('tetris-grid-container');
+    if (window.innerWidth <= 768) {
+        // Mobile: use the grid container size
+        const rect = container.getBoundingClientRect();
+        const size = Math.min(rect.width, rect.height, window.innerWidth - 40, window.innerHeight - 200);
+        return Math.max(300, size); // Minimum size of 300px
+    } else {
+        // Desktop: use fixed 600px
+        return 600;
+    }
+}
+
+export function updateCanvasForMobile() {
+    const canvas = document.getElementById('tetris-canvas');
+    const threeContainer = document.getElementById('three-container');
+    const size = getResponsiveCanvasSize();
+    
+    // Update 2D canvas
+    if (canvas) {
+        canvas.width = size;
+        canvas.height = size;
+        canvas.style.width = size + 'px';
+        canvas.style.height = size + 'px';
+    }
+    
+    // Update Three.js container
+    if (threeContainer) {
+        threeContainer.style.width = size + 'px';
+        threeContainer.style.height = size + 'px';
+    }
+    
+    return size;
+}
+
+export function handleMobileResize() {
+    // Only adjust for mobile screens
+    if (window.innerWidth <= 768) {
+        const container = document.getElementById('tetris-grid-container');
+        const canvas = document.getElementById('tetris-canvas');
+        const threeContainer = document.getElementById('three-container');
+        
+        if (container) {
+            const size = getResponsiveCanvasSize();
+            
+            // Update 2D canvas
+            if (canvas) {
+                canvas.width = size;
+                canvas.height = size;
+                canvas.style.width = size + 'px';
+                canvas.style.height = size + 'px';
+            }
+            
+            // Update Three.js container and renderer
+            if (threeContainer) {
+                threeContainer.style.width = size + 'px';
+                threeContainer.style.height = size + 'px';
+                
+                // Update Three.js renderer if it exists and three container is visible
+                if (window.renderer && threeContainer.style.display === 'block') {
+                    window.renderer.setSize(size, size, true);
+                    
+                    if (window.camera) {
+                        window.camera.aspect = 1;
+                        window.camera.updateProjectionMatrix();
+                    }
+                    
+                    // Force a render
+                    if (window.scene) {
+                        window.renderer.render(window.scene, window.camera);
+                    }
+                }
+            }
+            
+            // Update state if it exists
+            if (window.state || vars.state) {
+                const state = window.state || vars.state;
+                state.blockWidth = size / state.gridWidth;
+            }
+        }
+    }
+}

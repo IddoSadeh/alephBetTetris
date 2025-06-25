@@ -119,3 +119,311 @@ u {
 #threed-helper{
     display: none;
 }
+
+
+/* Mobile Portrait */
+@media (max-width: 768px) {
+    /* Make title bar text smaller on mobile */
+    .title-bar-text {
+        font-size: 12px;
+    }
+    
+    .title-bar-controls img {
+        width: 14px;
+        height: 12px;
+    }
+    
+    /* Stack layout vertically on mobile */
+    .window-body-custom {
+        flex-direction: column;
+        padding: 10px;
+        gap: 15px;
+    }
+    
+    /* Make controls full width and reorder */
+    .controls-column1,
+    .controls-column2 {
+        width: 100%;
+        order: 2; /* Controls come after canvas */
+    }
+    
+    /* Canvas container comes first and takes available space */
+    #tetris-grid-container {
+        position: relative;
+        order: 1;
+        width: 100%;
+        max-width: 90vw;
+        height: 90vw;
+        max-height: 400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    /* Make canvas responsive */
+    #tetris-canvas, 
+    #three-container {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* Stack control columns horizontally */
+    .controls-column1,
+    .controls-column2 {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    
+    .controls-column1 > .window,
+    .controls-column2 > .window {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    /* Make checkbox grid more mobile-friendly */
+    .pieces-checkbox {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .pieces-checkbox .field-row {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin: 0;
+    }
+    
+    .pieces-checkbox img {
+        width: 25px;
+        height: auto;
+        margin-bottom: 2px;
+    }
+    
+    .pieces-checkbox label {
+        font-size: 9px;
+        line-height: 1;
+    }
+    
+    /* Adjust form controls for mobile */
+    .input-control .field-row-stacked {
+        margin-bottom: 8px;
+    }
+    
+    .input-control label {
+        font-size: 10px;
+        margin-bottom: 2px;
+    }
+    
+    .input-control input[type="range"] {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .input-control button {
+        min-width: auto;
+        padding: 8px 12px;
+        font-size: 10px;
+        margin: 2px 0;
+    }
+    
+    .input-control select {
+        font-size: 10px;
+        padding: 4px;
+    }
+    
+    .input-control input[type="text"] {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 8px;
+    }
+    
+    /* Welcome screen responsive */
+    .welcome-screen {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 350px;
+        z-index: 1000;
+    }
+    
+    .welcome-screen .window-body {
+        padding: 15px;
+    }
+    
+    .welcome-screen p {
+        font-size: 11px;
+        line-height: 1.4;
+        margin: 8px 0;
+    }
+    
+    /* Footer adjustments */
+    .footer {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px 10px;
+        gap: 8px;
+    }
+    
+    .footer p {
+        margin: 0;
+        font-size: 11px;
+    }
+    
+    .footer .links {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .footer .links a {
+        font-size: 10px;
+    }
+    
+    /* Touch-friendly sizes */
+    button {
+        min-height: 40px;
+        touch-action: manipulation;
+    }
+    
+    input[type="range"] {
+        height: 40px;
+        margin: 8px 0;
+    }
+    
+    input[type="checkbox"] + label {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Prevent zoom on form inputs */
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+        /* Ensure the Three.js canvas inside the container is properly sized */
+    #three-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+    }
+    
+    /* Make sure the container maintains aspect ratio */
+    #tetris-grid-container::before {
+        content: '';
+        display: block;
+        padding-top: 100%; /* 1:1 Aspect Ratio */
+    }
+}
+
+/* Mobile Landscape - keep some desktop-like layout but smaller */
+@media (max-width: 768px) and (orientation: landscape) {
+    .window-body-custom {
+        flex-direction: row;
+        gap: 10px;
+        padding: 8px;
+    }
+    
+    .controls-column1,
+    .controls-column2 {
+        width: 20%;
+        order: initial;
+        flex-direction: column;
+    }
+    
+    #tetris-grid-container {
+        width: 60%;
+        height: 80vh;
+        max-height: 300px;
+        order: initial;
+    }
+    
+    .pieces-checkbox {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        padding: 4px;
+    }
+    
+    .pieces-checkbox img {
+        width: 20px;
+    }
+    
+    .input-control button {
+        padding: 4px 8px;
+        font-size: 9px;
+    }
+}
+
+/* Small phones (320px and below) */
+@media (max-width: 480px) {
+    .window-body-custom {
+        padding: 5px;
+        gap: 10px;
+    }
+    
+    #tetris-grid-container {
+        max-width: 95vw;
+        height: 95vw;
+        max-height: 320px;
+    }
+    
+    .pieces-checkbox {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+    
+    .pieces-checkbox img {
+        width: 22px;
+    }
+    
+    .input-control button {
+        font-size: 9px;
+        padding: 6px 10px;
+    }
+    
+    .footer {
+        padding: 10px 5px;
+    }
+    
+    .footer .links {
+        gap: 10px;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+    .title-bar-text {
+        font-size: 10px;
+    }
+    
+    .pieces-checkbox {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .controls-column1,
+    .controls-column2 {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .controls-column1 > .window,
+    .controls-column2 > .window {
+        margin-bottom: 8px;
+    }
+}
