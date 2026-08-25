@@ -13,6 +13,20 @@ The project is available at https://isadeh.com/alephBetTetris/
 - Export the generated image in PNG, JPEG, or OBJ format.
 - Interactive help screen to guide users.
 
+## Local development
+
+The project is a dependency-free static site. No npm install or build step is required.
+
+From the project directory, start any static file server, for example:
+
+```sh
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000`.
+
+Pushes to `main` are deployed through the GitHub Pages workflow. Runtime libraries are pinned in `vendor/` so the published site does not depend on npm or a third-party CDN.
+
 ## Technologies Used
 
 - HTML, CSS, JavaScript for the front-end development.

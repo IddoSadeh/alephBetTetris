@@ -6,15 +6,8 @@ export let scene, camera, renderer, controls;
 // Helper function to get responsive size
 function getResponsiveCanvasSize() {
     const container = document.getElementById('tetris-grid-container');
-    if (window.innerWidth <= 768) {
-        // Mobile: use the grid container size
-        const rect = container.getBoundingClientRect();
-        const size = Math.min(rect.width, rect.height, window.innerWidth - 40, window.innerHeight - 200);
-        return Math.max(300, size);
-    } else {
-        // Desktop: use fixed 600px
-        return 600;
-    }
+    const rect = container.getBoundingClientRect();
+    return Math.max(1, Math.floor(Math.min(rect.width, rect.height)));
 }
 
 export function initThreeJS() {

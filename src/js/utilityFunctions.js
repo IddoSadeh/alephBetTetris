@@ -4,6 +4,11 @@ import * as vars from './variables.js';
 import { scene } from './threeSetup.js';
 import * as THREE from 'three';
 
+let populateOperationId = 0;
+
+function isCurrentPopulateOperation(operationId) {
+    return operationId === populateOperationId;
+}
 
 export function isValidCharacter(input) {
   return Array.from(input).length === 1;
@@ -17,13 +22,19 @@ function loadFont(url) {
 }
 
 
-export function drawCube(block, x, y, z = 0) {
+export function drawCube(block, x, y, z = 0, operationId = populateOperationId) {
     // Scale down the block width
     const blockWidth = vars.state.blockWidth * 0.001;
     const geometry = new THREE.BoxGeometry(blockWidth, blockWidth, blockWidth);
     const loader = new THREE.TextureLoader();
 
     loader.load(block.svgUrl, (texture) => {
+        if (!isCurrentPopulateOperation(operationId)) {
+            texture.dispose();
+            geometry.dispose();
+            return;
+        }
+
         const materials = [
             new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
             new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
@@ -66,7 +77,7 @@ export function clearCubes() {
     });
 }
 
-export function placeCube(block, x, y) {
+export function placeCube(block, x, y, operationId = populateOperationId) {
     const layers = parseInt(vars.layerSlider.value, 10); // Get the number of layers from the slider
     for (let layer = 0; layer < layers; layer++) {
         for (let i = 0; i < block.matrix.length; i++) {
@@ -74,7 +85,7 @@ export function placeCube(block, x, y) {
                 if (block.matrix[i][j] === 1) {
                     vars.state.grid[y + i][x + j] = 1;
                     vars.state.allowedAreas[y + i][x + j] = 0;
-                    drawCube(block, x + j, y + i, layer * vars.state.blockWidth*0.001);
+                    drawCube(block, x + j, y + i, layer * vars.state.blockWidth*0.001, operationId);
                 }
             }
         }
@@ -109,13 +120,13 @@ export function isValidHebrewCharacter(input) {
 export function getSelectedBlocks() {
     const selectedBlocks = [];
     const allBlocks = [
-        { id: "blue", matrix: [[1, 0, 0], [1, 1, 1]], svgUrl: 'images/blue_block.svg' },
-        { id: "green", matrix: [[1, 0], [1, 1], [0, 1]], svgUrl: 'images/green_block.svg' },
-        { id: "orange", matrix: [[0, 0, 1], [1, 1, 1]], svgUrl: 'images/orange_block.svg' },
-        { id: "pink", matrix: [[1, 0], [1, 1], [1, 0]], svgUrl: 'images/pink_block.svg' },
-        { id: "red", matrix: [[0, 1], [1, 1], [1, 0]], svgUrl: 'images/red_block.svg' },
-        { id: "turqoise", matrix: [[1, 1, 1, 1]], svgUrl: 'images/turqoise_block.svg' },
-        { id: "yellow", matrix: [[1, 1], [1, 1]], svgUrl: 'images/yellow_block.svg' }
+        { id: "blue", matrix: [[1, 0, 0], [1, 1, 1]], svgUrl: './public/images/blue_block.svg' },
+        { id: "green", matrix: [[1, 0], [1, 1], [0, 1]], svgUrl: './public/images/green_block.svg' },
+        { id: "orange", matrix: [[0, 0, 1], [1, 1, 1]], svgUrl: './public/images/orange_block.svg' },
+        { id: "pink", matrix: [[1, 0], [1, 1], [1, 0]], svgUrl: './public/images/pink_block.svg' },
+        { id: "red", matrix: [[0, 1], [1, 1], [1, 0]], svgUrl: './public/images/red_block.svg' },
+        { id: "turqoise", matrix: [[1, 1, 1, 1]], svgUrl: './public/images/turqoise_block.svg' },
+        { id: "yellow", matrix: [[1, 1], [1, 1]], svgUrl: './public/images/yellow_block.svg' }
     ];
 
     allBlocks.forEach(block => {
@@ -135,33 +146,35 @@ export function resetGridAndAreas() {
     return Promise.resolve();
 }
 
-export function drawBlock(block, x, y) {
+export function drawBlock(block, x, y, operationId = populateOperationId) {
     const img = new Image();
     img.src = block.svgUrl;
     img.onload = () => {
+        if (!isCurrentPopulateOperation(operationId)) return;
+
         vars.ctx.drawImage(img, x * vars.state.blockWidth, y * vars.state.blockWidth, vars.state.blockWidth, vars.state.blockWidth);
         updateCanvasColorAdjustments();
     };
 }
 
-export function placeBlock(block, x, y) {
+export function placeBlock(block, x, y, operationId = populateOperationId) {
     for (let i = 0; i < block.matrix.length; i++) {
         for (let j = 0; j < block.matrix[i].length; j++) {
             if (block.matrix[i][j] === 1) {
                 vars.state.grid[y + i][x + j] = 1;
                 vars.state.allowedAreas[y + i][x + j] = 0;
-                drawBlock(block, x + j, y + i);
+                drawBlock(block, x + j, y + i, operationId);
             }
         }
     }
 }
 
-export function tryToPlaceBlock(block, startX, startY) {
+export function tryToPlaceBlock(block, startX, startY, operationId = populateOperationId) {
     let rotationApplied = 0;
     for (let rotation = 0; rotation < 4; rotation++) {
         if (canPlaceBlock(block, startX, startY)) {
-            placeBlock(block, startX, startY, rotationApplied);
-            placeCube(block,startX,startY)
+            placeBlock(block, startX, startY, operationId);
+            placeCube(block, startX, startY, operationId);
             return true;
         }
         block.matrix = rotateMatrix(block.matrix);
@@ -221,7 +234,7 @@ export function downscaleArray(originalArray, targetWidth, targetHeight) {
     return downscaledArray;
 }
 
-export async function rasterize(text, fontUrl) {
+export async function rasterize(text, fontUrl, operationId = populateOperationId) {
   const canvasEl = document.getElementById('canvas');
   const ctx = canvasEl.getContext('2d', { willReadFrequently: true });
   const W = canvasEl.width, H = canvasEl.height;
@@ -249,6 +262,8 @@ export async function rasterize(text, fontUrl) {
     );
     useNativeFallback = true;
   }
+
+  if (!isCurrentPopulateOperation(operationId)) return false;
 
   // 2) Clear canvas
   ctx.clearRect(0, 0, W, H);
@@ -319,6 +334,8 @@ export async function rasterize(text, fontUrl) {
   vars.state.allowedAreas = moveContentToBottom(
     downscaleArray(binary, vars.state.gridWidth, vars.state.gridHeight)
   );
+
+  return true;
 }
 
 export function moveContentToBottom(array) {
@@ -347,16 +364,19 @@ export function moveContentToBottom(array) {
 }
 
 export function populateCanvas() {
+    const operationId = ++populateOperationId;
     const letterInput = vars.textInput.value.trim();
     const fontUrl = vars.fontSelect.value;
     let blocks = getSelectedBlocks();
 
-    updateCanvasSize()
+    return updateCanvasSize()
         .then(() => updateCanvasOpacity())
         .then(() => clearCubes()) 
         .then(() => resetGridAndAreas())
-        .then(() => rasterize(letterInput, fontUrl))
-        .then(() => {
+        .then(() => rasterize(letterInput, fontUrl, operationId))
+        .then((didRasterize) => {
+            if (!didRasterize || !isCurrentPopulateOperation(operationId)) return;
+
             let placementsPossible;
             do {
                 placementsPossible = false;
@@ -364,7 +384,7 @@ export function populateCanvas() {
                     for (let x = 0; x < vars.state.gridWidth; x++) {
                         if (vars.state.grid[y][x] === 0 && vars.state.allowedAreas[y][x] === 1) {
                             const block = blocks[Math.floor(Math.random() * blocks.length)];
-                            if (tryToPlaceBlock({ ...block }, x, y)) {
+                            if (tryToPlaceBlock({ ...block }, x, y, operationId)) {
                                 placementsPossible = true;
                             }
                         }
@@ -384,15 +404,8 @@ export function rotateMatrix(matrix) {
 
 export function getResponsiveCanvasSize() {
     const container = document.getElementById('tetris-grid-container');
-    if (window.innerWidth <= 768) {
-        // Mobile: use the grid container size
-        const rect = container.getBoundingClientRect();
-        const size = Math.min(rect.width, rect.height, window.innerWidth - 40, window.innerHeight - 200);
-        return Math.max(300, size); // Minimum size of 300px
-    } else {
-        // Desktop: use fixed 600px
-        return 600;
-    }
+    const rect = container.getBoundingClientRect();
+    return Math.max(1, Math.floor(Math.min(rect.width, rect.height)));
 }
 
 export function updateCanvasForMobile() {
