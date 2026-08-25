@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="8" fill="#c0c0c0"/>
+  <path fill="#fff" d="M4 4h56v4H8v52H4z"/>
+  <path fill="#404040" d="M60 4v56H4v-4h52V4z"/>
+  <g stroke="#000" stroke-width="1">
+    <g transform="translate(8 12)">
+      <rect width="16" height="16" fill="#f000f0"/>
+      <path fill="#ff78ff" d="M0 0h16l-3 3H3z"/>
+      <path fill="#8a008a" d="M16 0v16l-3-3V3z"/>
+      <path fill="#b000b0" d="M0 16h16l-3-3H3z"/>
+    </g>
+    <g transform="translate(24 12)">
+      <rect width="16" height="16" fill="#f000f0"/>
+      <path fill="#ff78ff" d="M0 0h16l-3 3H3z"/>
+      <path fill="#8a008a" d="M16 0v16l-3-3V3z"/>
+      <path fill="#b000b0" d="M0 16h16l-3-3H3z"/>
+    </g>
+    <g transform="translate(40 12)">
+      <rect width="16" height="16" fill="#f000f0"/>
+      <path fill="#ff78ff" d="M0 0h16l-3 3H3z"/>
+      <path fill="#8a008a" d="M16 0v16l-3-3V3z"/>
+      <path fill="#b000b0" d="M0 16h16l-3-3H3z"/>
+    </g>
+    <g transform="translate(24 28)">
+      <rect width="16" height="16" fill="#f000f0"/>
+      <path fill="#ff78ff" d="M0 0h16l-3 3H3z"/>
+      <path fill="#8a008a" d="M16 0v16l-3-3V3z"/>
+      <path fill="#b000b0" d="M0 16h16l-3-3H3z"/>
+    </g>
+  </g>
+</svg>
