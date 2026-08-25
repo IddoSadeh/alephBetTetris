@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aleph Bet Tetris</title>
+    <title>Tetris Typography Generator</title>
     <link rel="stylesheet" href="./src/styles/98.css">
     <link rel="stylesheet" href="./src/styles/styles.css">
     <script src="./vendor/opentype.min.js"></script>
@@ -26,16 +26,14 @@
 <body>
     <div class="window-custom">
         <div class="title-bar">
-            <div class="title-bar-text">Ormitus Tetris Typography Generator</div>
+            <div class="title-bar-text">Tetris Typography Generator</div>
             <div class="title-bar-controls">
                 <img src="./public/images/minimize.svg" alt="minimize">
                 <img src="./public/images/maximize.svg" alt="maximize">
                 <img src="./public/images/close.svg" alt="close">
             </div>
         </div>
-        <div class="tab-bar">
-            <u>1</u><u>3</u><u>1</u><u>2</u>
-        </div>
+        <div class="tab-bar" aria-hidden="true"></div>
         <div class="window-body-custom">
             <div class="controls-column1">
                 <div class="window">
@@ -61,12 +59,12 @@
                             </div>
                             <div class="field-row-stacked">
                                 <label for="size">Grid Density</label>
-                                <input type="range" id="size" name="size" min="12" max="124" value="12">
+                                <input type="range" id="size" name="size" min="12" max="124" value="68">
                             </div>
 
                             <div class="field-row-stacked">
                                 <label for="text">Text</label>
-                                <input type="text" id="text" name="text">
+                                <input type="text" id="text" name="text" maxlength="60" placeholder="Enter a letter, word, or phrase">
 
                             </div>
                             <div class="field-row-stacked">
@@ -100,12 +98,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="dimension-control">
-                    
-                   
-
-                </div>
             </div>
 
 
@@ -114,15 +106,15 @@
             <div id="tetris-grid-container">
                 <div id="welcome-screen" class="window welcome-screen">
                     <div class="title-bar">
-                        <div class="title-bar-text">Welcome to Ormitus Tetris Typography Generator</div>
+                        <div class="title-bar-text">Welcome to Tetris Typography Generator</div>
                     </div>
                     <div class="window-body">
     
                         <div class="field-row-stacked">
-      <p>Welcome! Generate Tetris-style typography from <strong>any single Unicode character</strong>.</p>
-      <p>Select or upload a font; the app will render your character in the chosen font if it’s supported.</p>
-      <p>If your font doesn’t include that glyph, we’ll automatically fall back to your system’s default sans-serif.</p>
-      <p>Adjust grid density, colors, and 2D/3D view—everything updates live as you tweak the controls.</p>
+      <p>Generate Tetris-style typography from a letter, word, or short phrase in any writing system.</p>
+      <p>Select or upload a font; the app will render your text in the chosen font when all its characters are supported.</p>
+      <p>If the font is missing a character, the generator automatically falls back to your system’s sans-serif font.</p>
+      <p>Longer phrases wrap automatically across up to three lines. Adjust grid density, colors, and 2D/3D view as you work.</p>
                             <button id="close-welcome">Close</button>
                         </div>
     
@@ -186,14 +178,11 @@
 
             </div>
         </div>
-        <div class="footer" style="display:flex; justify-content: space-between;">
-            <p> Ori Mor - Experimental Typography Class 2024</p>
-            <div class="links">
-                <a href="https://www.linkedin.com/in/ori-mor-3a751a1a7/" style="color:white;">LinkedIn</a>
-                <a href="https://www.instagram.com/ormituss/" style="color:white;">Instagram</a>
-                <a href="www.ormitus.com" style="color:white;"> Portfolio</a>
-            </div>
-
+        <div class="footer">
+            <p>
+                Created by <a href="https://isadeh.com/">Iddo Sadeh</a>
+                and <a href="https://www.ormitus.com/">Ori Mor</a>
+            </p>
         </div>
     </div>
     <canvas id="canvas" width="600" height="600" style="display:none"></canvas>

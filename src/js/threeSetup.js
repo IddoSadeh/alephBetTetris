@@ -2,6 +2,25 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export let scene, camera, renderer, controls;
+let animationFrameId = null;
+let controlsActive = false;
+let settlingFrames = 0;
+
+export function requestThreeRender(frames = 1) {
+    settlingFrames = Math.max(settlingFrames, frames);
+    if (animationFrameId === null) animationFrameId = requestAnimationFrame(renderFrame);
+}
+
+function renderFrame() {
+    animationFrameId = null;
+    const controlsChanged = controls?.update() ?? false;
+    renderer?.render(scene, camera);
+    settlingFrames = Math.max(0, settlingFrames - 1);
+
+    if (controlsActive || controlsChanged || settlingFrames > 0) {
+        animationFrameId = requestAnimationFrame(renderFrame);
+    }
+}
 
 // Helper function to get responsive size
 function getResponsiveCanvasSize() {
@@ -21,6 +40,7 @@ export function initThreeJS() {
 
     console.log('Initial container size:', initialSize);
     renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(initialSize, initialSize);
     renderer.domElement.id = 'three-canvas';
     renderer.setClearColor(0x000000, 0);
@@ -32,6 +52,14 @@ export function initThreeJS() {
     controls.screenSpacePanning = false;
     controls.minDistance = 0.1;
     controls.maxDistance = 100;
+    controls.addEventListener('start', () => {
+        controlsActive = true;
+        requestThreeRender();
+    });
+    controls.addEventListener('end', () => {
+        controlsActive = false;
+        requestThreeRender(30);
+    });
 
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(5, 5, 5).normalize();
@@ -62,6 +90,7 @@ export function initThreeJS() {
             container.style.height = newSize + 'px';
             
             console.log('Three.js resized to:', newSize);
+            requestThreeRender();
         }, 100);
     }
 
@@ -70,11 +99,5 @@ export function initThreeJS() {
         setTimeout(handleResize, 500); // Longer delay for orientation change
     });
 
-    function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-    }
-
-    animate();
+    requestThreeRender();
 }

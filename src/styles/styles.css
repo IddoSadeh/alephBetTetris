@@ -30,13 +30,8 @@ body {
 }
 
 .tab-bar {
+    height: 24px;
     background-color: #c0c0c0;
-    padding: 5px 0;
-}
-
-u {
-    color: black;
-    padding: 5px;
 }
 
 .window-body-custom {
@@ -77,15 +72,13 @@ u {
     flex-direction: column;
 }
 
-.dimension-control {
-    display: flex;
-    height: 100%;
+.footer {
+    padding: 0 20px;
+    text-align: center;
 }
 
-
-
-.footer {
-    padding: 0 20px 0;
+.footer a {
+    color: white;
 }
 
 
@@ -128,6 +121,48 @@ u {
     display: none;
 }
 
+@media (min-width: 769px) {
+    html,
+    body,
+    .window-custom {
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .window-body-custom {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 12px 20px;
+    }
+
+    .controls-column1 {
+        width: min(220px, 100%);
+        justify-self: start;
+    }
+
+    .controls-column2 {
+        width: min(220px, 100%);
+        justify-self: end;
+    }
+
+    .controls-column1,
+    .controls-column2 {
+        max-height: 100%;
+        overflow-y: auto;
+    }
+
+    #tetris-grid-container {
+        width: min(600px, 60vw, calc(100dvh - 105px));
+        justify-self: center;
+    }
+
+    .footer p {
+        margin: 6px 0;
+    }
+}
+
 
 /* Mobile Portrait */
 @media (max-width: 768px) {
@@ -151,8 +186,10 @@ u {
     /* Make controls full width and reorder */
     .controls-column1,
     .controls-column2 {
-        width: 100%;
+        width: min(100%, 400px);
         order: 2; /* Controls come after canvas */
+        margin: 0 auto;
+        font-size: 12px;
     }
     
     /* Canvas container comes first and takes available space */
@@ -180,12 +217,11 @@ u {
         border: 1px solid rgba(255, 255, 255, 0.8);
     }
 
-    /* Stack control columns horizontally */
+    /* Keep each control panel aligned as a single readable menu. */
     .controls-column1,
     .controls-column2 {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+        flex-direction: column;
         gap: 10px;
     }
     
@@ -193,6 +229,8 @@ u {
     .controls-column2 > .window {
         flex: 1;
         min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     /* Make checkbox grid more mobile-friendly */
@@ -206,19 +244,19 @@ u {
     .pieces-checkbox .field-row {
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         text-align: center;
         margin: 0;
+        min-height: 48px;
     }
-    
+
     .pieces-checkbox img {
-        width: 25px;
+        width: auto;
         height: auto;
-        margin-bottom: 2px;
-    }
-    
-    .pieces-checkbox label {
-        font-size: 9px;
-        line-height: 1;
+        max-width: 53px;
+        max-height: 40px;
+        display: block;
+        margin: 0 auto;
     }
     
     /* Adjust form controls for mobile */
@@ -227,7 +265,7 @@ u {
     }
     
     .input-control label {
-        font-size: 10px;
+        font-size: 12px;
         margin-bottom: 2px;
     }
     
@@ -235,22 +273,45 @@ u {
         width: 100%;
         margin: 5px 0;
     }
+
+    .input-control input[type="text"],
+    .input-control input[type="file"],
+    .input-control select,
+    .input-control button {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        font-family: inherit;
+        font-size: 16px;
+    }
+
+    .input-control input[type="text"],
+    .input-control select,
+    .input-control button {
+        height: 44px;
+        min-height: 44px;
+        line-height: 1.25;
+        padding: 8px 10px;
+    }
+
+    .input-control select {
+        padding-right: 32px;
+        background-position: right 6px center;
+    }
+
+    .input-control input[type="file"] {
+        min-height: 44px;
+        padding: 6px;
+        line-height: 1.75;
+    }
+
+    .input-control input[type="file"]::file-selector-button {
+        font: inherit;
+    }
     
     .input-control button {
         min-width: auto;
-        padding: 8px 12px;
-        font-size: 10px;
         margin: 2px 0;
-    }
-    
-    .input-control select {
-        font-size: 10px;
-        padding: 4px;
-    }
-    
-    .input-control input[type="text"] {
-        font-size: 16px; /* Prevents zoom on iOS */
-        padding: 8px;
     }
     
     /* Welcome screen responsive */
@@ -287,17 +348,6 @@ u {
         font-size: 11px;
     }
     
-    .footer .links {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-    
-    .footer .links a {
-        font-size: 10px;
-    }
-    
     /* Touch-friendly sizes */
     button {
         min-height: 40px;
@@ -332,40 +382,20 @@ u {
     
 }
 
-/* Mobile Landscape - keep some desktop-like layout but smaller */
+/* Mobile landscape keeps the same readable stack instead of narrow sidebars. */
 @media (max-width: 768px) and (orientation: landscape) {
     .window-body-custom {
-        flex-direction: row;
         gap: 10px;
         padding: 8px;
     }
-    
-    .controls-column1,
-    .controls-column2 {
-        width: 20%;
-        order: initial;
-        flex-direction: column;
-    }
-    
+
     #tetris-grid-container {
-        width: min(60%, 80dvh, 300px);
+        width: min(90vw, calc(100dvh - 80px), 400px);
         height: auto;
-        order: initial;
     }
-    
+
     .pieces-checkbox {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 4px;
-        padding: 4px;
-    }
-    
-    .pieces-checkbox img {
-        width: 20px;
-    }
-    
-    .input-control button {
-        padding: 4px 8px;
-        font-size: 9px;
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
@@ -386,12 +416,7 @@ u {
         gap: 6px;
     }
     
-    .pieces-checkbox img {
-        width: 22px;
-    }
-    
     .input-control button {
-        font-size: 9px;
         padding: 6px 10px;
     }
     
@@ -399,9 +424,6 @@ u {
         padding: 10px 5px;
     }
     
-    .footer .links {
-        gap: 10px;
-    }
 }
 
 /* Very small phones */

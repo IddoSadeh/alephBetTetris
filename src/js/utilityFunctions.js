@@ -1,17 +1,46 @@
 
 import { updateCanvasColorAdjustments, updateCanvasOpacity, updateCanvasSize } from './canvasModule.js';
 import * as vars from './variables.js';
-import { scene } from './threeSetup.js';
+import { requestThreeRender, scene } from './threeSetup.js';
 import * as THREE from 'three';
 
 let populateOperationId = 0;
+const textureLoader = new THREE.TextureLoader();
+const blockMaterialPromises = new Map();
+const cubeGeometries = new Map();
 
 function isCurrentPopulateOperation(operationId) {
     return operationId === populateOperationId;
 }
 
-export function isValidCharacter(input) {
-  return Array.from(input).length === 1;
+function getCubeGeometry(blockWidth) {
+    const key = blockWidth.toFixed(6);
+    if (!cubeGeometries.has(key)) {
+        cubeGeometries.set(key, new THREE.BoxGeometry(blockWidth, blockWidth, blockWidth));
+    }
+    return cubeGeometries.get(key);
+}
+
+function getBlockMaterial(block) {
+    if (!blockMaterialPromises.has(block.svgUrl)) {
+        blockMaterialPromises.set(block.svgUrl, new Promise((resolve, reject) => {
+            textureLoader.load(
+                block.svgUrl,
+                texture => {
+                    const material = new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff });
+                    material.name = block.id;
+                    resolve(material);
+                },
+                undefined,
+                reject
+            );
+        }));
+    }
+    return blockMaterialPromises.get(block.svgUrl);
+}
+
+export function isValidText(input) {
+  return input.trim().length > 0;
 }
 
 // Helper: load a font by URL via opentype.js
@@ -21,30 +50,134 @@ function loadFont(url) {
   );
 }
 
+const MAX_TEXT_LINES = 3;
+const LONG_WORD_WRAP_THRESHOLD = 16;
+const TEXT_PADDING_RATIO = 0.08;
+
+function findBalancedLines(units, joiner, lineCount, measureWidth) {
+  const memo = new Map();
+
+  function visit(start, linesLeft) {
+    const key = `${start}:${linesLeft}`;
+    if (memo.has(key)) return memo.get(key);
+
+    if (linesLeft === 1) {
+      const line = units.slice(start).join(joiner);
+      const result = { widestLine: measureWidth(line), lines: [line] };
+      memo.set(key, result);
+      return result;
+    }
+
+    let best = null;
+    const lastBreak = units.length - linesLeft + 1;
+    for (let end = start + 1; end <= lastBreak; end++) {
+      const line = units.slice(start, end).join(joiner);
+      const remainder = visit(end, linesLeft - 1);
+      const candidate = {
+        widestLine: Math.max(measureWidth(line), remainder.widestLine),
+        lines: [line, ...remainder.lines]
+      };
+      if (!best || candidate.widestLine < best.widestLine) best = candidate;
+    }
+
+    memo.set(key, best);
+    return best;
+  }
+
+  return visit(0, lineCount).lines;
+}
+
+function createLineLayouts(text, measureWidth) {
+  const normalizedText = text.trim().replace(/\s+/gu, ' ');
+  const words = normalizedText.split(' ');
+  const characters = Array.from(normalizedText);
+  const splitLongWord = words.length === 1 && characters.length > LONG_WORD_WRAP_THRESHOLD;
+  const units = splitLongWord ? characters : words;
+  const joiner = splitLongWord ? '' : ' ';
+  const layoutCount = Math.min(MAX_TEXT_LINES, units.length);
+
+  return Array.from({ length: layoutCount }, (_, index) =>
+    findBalancedLines(units, joiner, index + 1, measureWidth)
+  );
+}
+
+function chooseLargestLayout(layouts, getBounds, width, height) {
+  const innerWidth = width * (1 - TEXT_PADDING_RATIO * 2);
+  const innerHeight = height * (1 - TEXT_PADDING_RATIO * 2);
+  let best = null;
+
+  for (const lines of layouts) {
+    let low = 1;
+    let high = width;
+    let fittingSize = 1;
+
+    while (low <= high) {
+      const size = Math.floor((low + high) / 2);
+      const bounds = lines.map(line => getBounds(line, size));
+      const widestLine = Math.max(...bounds.map(bound => bound.width));
+      const tallestGlyph = Math.max(...bounds.map(bound => bound.height));
+      const lineHeight = Math.max(size * 1.15, tallestGlyph);
+      const totalHeight = lineHeight * lines.length;
+      const fits = widestLine <= innerWidth && totalHeight <= innerHeight;
+
+      if (fits) {
+        fittingSize = size;
+        low = size + 1;
+      } else {
+        high = size - 1;
+      }
+    }
+
+    if (!best || fittingSize > best.fontSize) {
+      const tallestGlyph = Math.max(...lines.map(line => getBounds(line, fittingSize).height));
+      best = {
+        lines,
+        fontSize: fittingSize,
+        lineHeight: Math.max(fittingSize * 1.15, tallestGlyph)
+      };
+    }
+  }
+
+  return best;
+}
+
+function drawOpenTypePath(ctx, path, xOffset, yOffset) {
+  ctx.beginPath();
+  for (const command of path.commands) {
+    switch (command.type) {
+      case 'M': ctx.moveTo(command.x + xOffset, command.y + yOffset); break;
+      case 'L': ctx.lineTo(command.x + xOffset, command.y + yOffset); break;
+      case 'C':
+        ctx.bezierCurveTo(
+          command.x1 + xOffset, command.y1 + yOffset,
+          command.x2 + xOffset, command.y2 + yOffset,
+          command.x + xOffset, command.y + yOffset
+        );
+        break;
+      case 'Q':
+        ctx.quadraticCurveTo(
+          command.x1 + xOffset, command.y1 + yOffset,
+          command.x + xOffset, command.y + yOffset
+        );
+        break;
+      case 'Z': ctx.closePath(); break;
+    }
+  }
+  ctx.fill();
+}
+
 
 export function drawCube(block, x, y, z = 0, operationId = populateOperationId) {
     // Scale down the block width
     const blockWidth = vars.state.blockWidth * 0.001;
-    const geometry = new THREE.BoxGeometry(blockWidth, blockWidth, blockWidth);
-    const loader = new THREE.TextureLoader();
+    const geometry = getCubeGeometry(blockWidth);
 
-    loader.load(block.svgUrl, (texture) => {
+    getBlockMaterial(block).then(material => {
         if (!isCurrentPopulateOperation(operationId)) {
-            texture.dispose();
-            geometry.dispose();
             return;
         }
 
-        const materials = [
-            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
-            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
-            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
-            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
-            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff }),
-            new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff })
-        ];
-
-        const cube = new THREE.Mesh(geometry, materials);
+        const cube = new THREE.Mesh(geometry, material);
 
         // Calculate the center position of the grid
         const gridCenterX = (vars.state.gridWidth * blockWidth) / 2;
@@ -59,6 +192,9 @@ export function drawCube(block, x, y, z = 0, operationId = populateOperationId) 
 
         scene.add(cube);
         cube.userData.isTetrisCube = true; // Tag to identify Tetris cubes
+        requestThreeRender();
+    }).catch(error => {
+        console.error(`Failed to load block texture: ${block.svgUrl}`, error);
     });
 }
 
@@ -73,6 +209,7 @@ export function clearCubes() {
         objectsToRemove.forEach((object) => {
             scene.remove(object);
         });
+        requestThreeRender();
         resolve();
     });
 }
@@ -252,8 +389,9 @@ export async function rasterize(text, fontUrl, operationId = populateOperationId
   let font, useNativeFallback = false;
   try {
     font = await loadFont(fontUrl);
-    // charToGlyphIndex === 0 means “.notdef” → missing glyph
-    if (font.charToGlyphIndex(text) === 0) {
+    // A glyph index of zero means “.notdef” → at least one character is missing.
+    const visibleCharacters = Array.from(text).filter(character => !/\s/u.test(character));
+    if (visibleCharacters.some(character => font.charToGlyphIndex(character) === 0)) {
       throw new Error('missing-glyph');
     }
   } catch (err) {
@@ -269,52 +407,45 @@ export async function rasterize(text, fontUrl, operationId = populateOperationId
   ctx.clearRect(0, 0, W, H);
 
   if (useNativeFallback) {
-    // ---- NATIVE fillText() FALLBACK PATH ----
-    // Centered text using browser’s font-family fallback:
-    const fontSize = W;
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-    // Use the uploaded font name first (in case it covers), then sans-serif
-    ctx.font = `${fontSize}px "${vars.state.uploadedFontName}", sans-serif`;
-    ctx.fillText(text, W / 2, H / 2);
+    const fontFamily = `"${vars.state.uploadedFontName}", sans-serif`;
+    const getNativeBounds = (line, size) => {
+      ctx.font = `${size}px ${fontFamily}`;
+      const metrics = ctx.measureText(line);
+      return {
+        width: metrics.width,
+        height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+      };
+    };
+    const layouts = createLineLayouts(text, line => getNativeBounds(line, 100).width);
+    const layout = chooseLargestLayout(layouts, getNativeBounds, W, H);
+    ctx.font = `${layout.fontSize}px ${fontFamily}`;
+
+    layout.lines.forEach((line, index) => {
+      const lineCenterY = H / 2 + (index - (layout.lines.length - 1) / 2) * layout.lineHeight;
+      ctx.fillText(line, W / 2, lineCenterY);
+    });
 
   } else {
-    // ---- OPENTYPE PATH ----
-    // Find the maximum fontSize that fits the canvas:
-    let fontSize = W;
-    const fits = size => {
-      const p = font.getPath(text, 0, 0, size);
-      const b = p.getBoundingBox();
-      return b.x2 - b.x1 <= W && b.y2 - b.y1 <= H;
+    const getOpenTypeBounds = (line, size) => {
+      const bounds = font.getPath(line, 0, 0, size).getBoundingBox();
+      return {
+        width: bounds.x2 - bounds.x1,
+        height: bounds.y2 - bounds.y1
+      };
     };
-    while (fontSize > 0 && !fits(fontSize)) fontSize--;
+    const layouts = createLineLayouts(text, line => getOpenTypeBounds(line, 100).width);
+    const layout = chooseLargestLayout(layouts, getOpenTypeBounds, W, H);
 
-    // Build and draw the path
-    const path = font.getPath(text, 0, 0, fontSize);
-    const b = path.getBoundingBox();
-    const xOff = (W - (b.x2 - b.x1)) / 2 - b.x1;
-    const yOff = (H - (b.y2 - b.y1)) / 2 - b.y1;
-
-    ctx.beginPath();
-    for (const c of path.commands) {
-      switch (c.type) {
-        case 'M': ctx.moveTo(c.x + xOff, c.y + yOff); break;
-        case 'L': ctx.lineTo(c.x + xOff, c.y + yOff); break;
-        case 'C':
-          ctx.bezierCurveTo(
-            c.x1 + xOff, c.y1 + yOff,
-            c.x2 + xOff, c.y2 + yOff,
-            c.x  + xOff, c.y  + yOff
-          ); break;
-        case 'Q':
-          ctx.quadraticCurveTo(
-            c.x1 + xOff, c.y1 + yOff,
-            c.x  + xOff, c.y  + yOff
-          ); break;
-        case 'Z': ctx.closePath(); break;
-      }
-    }
-    ctx.fill();
+    layout.lines.forEach((line, index) => {
+      const path = font.getPath(line, 0, 0, layout.fontSize);
+      const bounds = path.getBoundingBox();
+      const lineCenterY = H / 2 + (index - (layout.lines.length - 1) / 2) * layout.lineHeight;
+      const xOffset = (W - (bounds.x2 - bounds.x1)) / 2 - bounds.x1;
+      const yOffset = lineCenterY - (bounds.y1 + bounds.y2) / 2;
+      drawOpenTypePath(ctx, path, xOffset, yOffset);
+    });
   }
 
   // 3) Rasterize the canvas pixels into a binary grid

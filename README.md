@@ -1,12 +1,12 @@
-# Ormitus Tetris Typography Generator
+# Tetris Typography Generator
 
-This project is a Tetris-style typography generator created for my friend Ori Mor's Experimental Typography Class of 2024. The tool allows users to input a character and generate a Tetris block representation of the character using custom or uploaded fonts.
+This general-purpose typography tool turns a letter, word, or phrase into a Tetris-block composition using built-in or uploaded fonts.
 
 The project is available at https://isadeh.com/alephBetTetris/
 
 ## Features
 
-- Input a character to generate a Tetris-style representation.
+- Input a letter, word, or phrase in any writing system.
 - Choose from a selection of provided fonts or upload your own.
 - Adjust the size and opacity of the Tetris grid.
 - Select the colors of Tetris blocks used in the representation.
@@ -36,7 +36,7 @@ Pushes to `main` are deployed through the GitHub Pages workflow. Runtime librari
 
 ## Acknowledgements
 
-- Ori Mor ([LinkedIn](https://www.linkedin.com/in/ori-mor-3a751a1a7/) or [Instagram](https://www.instagram.com/ormituss/)( for the original idea and font designs.
+- Created by [Iddo Sadeh](https://isadeh.com/) and [Ori Mor](https://www.ormitus.com/).
 - Jordan Scales for the 98.css library. https://github.com/jdan/98.css
 
 ## Contact

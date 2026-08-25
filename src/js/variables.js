@@ -23,10 +23,10 @@ export const layerSlider = document.getElementById('layer-slider');
 export const opacityHelper = document.getElementById('opacity-helper');
 export const threedHelper = document.getElementById('threed-helper');
 export let state = {
-    gridWidth: 12,
-    gridHeight: 12,
-    blockWidth: 50,
-    grid: Array.from(Array(12), () => new Array(12).fill(0)),
-    allowedAreas: Array.from(Array(12), () => new Array(12).fill(1)),
+    gridWidth: 68,
+    gridHeight: 68,
+    blockWidth: 600 / 68,
+    grid: Array.from(Array(68), () => new Array(68).fill(0)),
+    allowedAreas: Array.from(Array(68), () => new Array(68).fill(1)),
     repopulateTimeout: null
 };
